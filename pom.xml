@@ -50,7 +50,7 @@
     <dependency>
 		<groupId>informa</groupId>
 		<artifactId>informa</artifactId>
-		<version>0.6.5</version>
+		<version>0.6.0</version>
 	</dependency>
 	<dependency>
 	<groupId>commons-logging</groupId>
