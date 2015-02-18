@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.core.Crawler;
+import org.betarss.core.ICrawler;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
@@ -18,7 +18,7 @@ import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CpasbienCrawler implements Crawler {
+public class CpasbienCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {

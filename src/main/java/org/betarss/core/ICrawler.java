@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.betarss.domain.Feed;
 
-public interface Crawler {
+public interface ICrawler {
 
 	Feed getFeed(String showName, int season) throws IOException;
 	

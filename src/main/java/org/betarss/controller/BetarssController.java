@@ -1,6 +1,6 @@
 package org.betarss.controller;
 
-import org.betarss.core.Crawler;
+import org.betarss.core.ICrawler;
 import org.betarss.core.FeedFilter;
 import org.betarss.core.RssProducer;
 import org.betarss.domain.Feed;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BetarssController {
 
 	@Autowired
-	private Crawler cpasbienCrawler;
+	private ICrawler cpasbienCrawler;
 	
 	@Autowired
 	private FeedFilter feedFilter;
