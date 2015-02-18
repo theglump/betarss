@@ -1,7 +1,8 @@
 package org.betarss.controller;
 
-import org.betarss.core.ICrawler;
+import org.betarss.core.BetaseriesFeedProducer;
 import org.betarss.core.FeedFilter;
+import org.betarss.core.ICrawler;
 import org.betarss.core.RssProducer;
 import org.betarss.domain.Feed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,26 +19,42 @@ public class BetarssController {
 
 	@Autowired
 	private ICrawler cpasbienCrawler;
-	
+
 	@Autowired
 	private FeedFilter feedFilter;
-	
+
 	@Autowired
 	private RssProducer rssProducer;
-	
+
 	@RequestMapping(value = "feed", method = RequestMethod.GET)
-	public HttpEntity<byte[]> get( //
-			@RequestParam(required=true) String show, //
-			@RequestParam(required=true) int season, //
-			@RequestParam(required=false, defaultValue="vostfr") String language, //
-			@RequestParam(required=false) String filter) throws Exception {
-		
+	public HttpEntity<byte[]> feed( //
+			@RequestParam(required = true) String show, //
+			@RequestParam(required = true) int season, //
+			@RequestParam(required = false, defaultValue = "vostfr") String language, //
+			@RequestParam(required = false) String filter) throws Exception {
+
 		Feed feed = cpasbienCrawler.getFeed(show, season);
 
 		if (!isEmpty(filter)) {
 			feed = feedFilter.filter(feed, filter);
 		}
-	    
+
+		return httpEntity(rssProducer.produceRSS2(feed));
+	}
+
+	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
+	public HttpEntity<byte[]> betaseries( //
+			@RequestParam(required = true) String login, //
+			@RequestParam(required = false, defaultValue = "vostfr") String language, //
+			@RequestParam(required = false) String filter) throws Exception {
+
+		BetaseriesFeedProducer producer = new BetaseriesFeedProducer(cpasbienCrawler);
+		Feed feed = producer.getFeed(login);
+
+		if (!isEmpty(filter)) {
+			feed = feedFilter.filter(feed, filter);
+		}
+
 		return httpEntity(rssProducer.produceRSS2(feed));
 	}
 
@@ -47,7 +64,7 @@ public class BetarssController {
 		header.setContentLength(xml.length());
 		return new HttpEntity<byte[]>(xml.getBytes(), header);
 	}
-	
+
 	private boolean isEmpty(String str) {
 		return str == null || str.isEmpty();
 	}
