@@ -20,41 +20,56 @@ import org.springframework.stereotype.Service;
 @Service
 public class CpasbienCrawler implements ICrawler {
 
+	private static final Pattern EPISODE_ITEM_PATTERN = Pattern.compile("(.*dl-torrent.*/(.*)\\.html.*(\\d+/\\d+/\\d+).*>(.*)<.*)",
+			Pattern.CASE_INSENSITIVE);
+
+	private static final int TORRENT_NAME = 2;
+	private static final int DATE = 3;
+	private static final int TITLE = 4;
+
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
-		List<FeedItem> feedItems = new ArrayList<FeedItem>();
-		int episode = 1;
-		while (true) {
-			String html = Jsoup.connect("http://www.cpasbien.pw/recherche/").userAgent("Mozilla")
-					.data("champ_recherche", showName + " " + ShowUtils.getFormattedShowEpisode(season, episode)).post().html();
-
-			Pattern regexp = Pattern.compile("(.*dl-torrent.*/(.*)\\.html.*(\\d+/\\d+/\\d+).*>(.*)<.*)", Pattern.CASE_INSENSITIVE);
-
-			Matcher m = regexp.matcher(html);
-			int nbFound = 0;
-
-			while (m.find()) {
-				String title = m.group(4);
-				String location = "http://www.cpasbien.pw/telechargement/" + m.group(2) + ".torrent";
-				Date date = null;
-				try {
-					date = new SimpleDateFormat("dd/MM/yyyy").parse(m.group(3));
-				} catch (java.text.ParseException e) {
-					e.printStackTrace();
-				}
-
-				FeedItem feedItem = FeedItemBuilder.start().withTitle(title).withDescription(title).withLocation(location).withDate(date).get();
-				feedItems.add(feedItem);
-
-				nbFound = ShowUtils.hasMoreThanOneEp(title) ? 2 : 1;
-			}
-
-			if (nbFound == 0) {
-				break;
-			}
-			episode += nbFound;
-		}
-		return FeedBuilder.start().withFeedItems(feedItems).get();
-
+		return FeedBuilder.start().withFeedItems(getFeed(fetchHtml(showName, season))).get();
 	}
+
+	private List<FeedItem> getFeed(String html) throws IOException {
+		List<FeedItem> feedItems = new ArrayList<FeedItem>();
+		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
+		while (m.find()) {
+			FeedItem feedItem = createFeed(m);
+			feedItems.add(feedItem);
+		}
+		return feedItems;
+	}
+
+	private FeedItem createFeed(Matcher m) {
+		return FeedItemBuilder.start(). //
+				withTitle(m.group(TITLE)). //
+				withDescription(m.group(TITLE)). //
+				withLocation(getLocation(m.group(TORRENT_NAME))). //
+				withDate(parseDate(m.group(DATE))). //
+				get();
+	}
+
+	private String fetchHtml(String showName, int season) throws IOException {
+		return Jsoup //
+				.connect("http://www.cpasbien.pw/recherche/") //
+				.userAgent("Mozilla") //
+				.data("champ_recherche", showName + " " + ShowUtils.getFormattedShowSeason(season)) //
+				.post() //
+				.html();
+	}
+
+	private Date parseDate(String date) {
+		try {
+			return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+		} catch (java.text.ParseException e) {
+			return new Date();
+		}
+	}
+
+	private String getLocation(String torrentName) {
+		return "http://www.cpasbien.pw/telechargement/" + torrentName + ".torrent";
+	}
+
 }
