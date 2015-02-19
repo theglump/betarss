@@ -10,30 +10,23 @@ import java.util.regex.Pattern;
 
 import org.betarss.core.ICrawler;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
-import org.betarss.domain.FeedItemBuilder;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CpasbienCrawler implements ICrawler {
+public class SeedpeerCrawler implements ICrawler {
 
-	private static final Pattern EPISODE_ITEM_PATTERN = Pattern.compile("(.*dl-torrent.*/(.*)\\.html.*(\\d+/\\d+/\\d+).*>(.*)<.*)",
+	// <td><a href="/torrent_download/4017203/Better+Call+Saul+S01E01+HDTV+x264-KILLERS%5Bettv%5D.torrent" title="Download Better Call Saul S01E01 HDTV x264-KILLERS[ettv] torrent"><img src="http://static.extratorrent.cc/images/icon_download3.gif" alt="Download" /></a></td>
+
+	private static final Pattern EPISODE_ITEM_PATTERN = Pattern.compile("(/torrent_(download.*torrent).*Download (.*) torrent)",
 			Pattern.CASE_INSENSITIVE);
-
-	private static final int TORRENT_NAME = 2;
-	private static final int DATE = 3;
-	private static final int TITLE = 4;
 
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
-		return FeedBuilder //
-				.start() //
-				.withTitle(showName + " " + ShowUtils.getFormattedShowSeason(season)) //
-				.withFeedItems(getFeed(fetchHtml(showName, season))) //
-				.get();
+		System.out.println(fetchHtml(showName, season));
+		return null;
 	}
 
 	private List<FeedItem> getFeed(String html) throws IOException {
@@ -47,19 +40,20 @@ public class CpasbienCrawler implements ICrawler {
 	}
 
 	private FeedItem createFeed(Matcher m) {
-		return FeedItemBuilder.start(). //
-				withTitle(m.group(TITLE)). //
-				withDescription(m.group(TITLE)). //
-				withLocation(getLocation(m.group(TORRENT_NAME))). //
-				withDate(parseDate(m.group(DATE))). //
-				get();
+		//		return FeedItemBuilder.start(). //
+		//				withTitle(m.group(TITLE)). //
+		//				withDescription(m.group(TITLE)). //
+		//				withLocation(getLocation(m.group(TORRENT_NAME))). //
+		//				withDate(parseDate(m.group(DATE))). //
+		//				get();
+		return null;
 	}
 
 	private String fetchHtml(String showName, int season) throws IOException {
 		return Jsoup //
-				.connect("http://www.cpasbien.pw/recherche/") //
+				.connect("http://extratorrent.cc/search/") //
 				.userAgent("Mozilla") //
-				.data("champ_recherche", showName + " " + ShowUtils.getFormattedShowSeason(season)) //
+				.data("search", showName + " " + ShowUtils.getFormattedShowSeason(season)) //
 				.post() //
 				.html();
 	}

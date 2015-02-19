@@ -1,10 +1,12 @@
 package org.betarss.controller;
 
-import org.betarss.core.BetaseriesFeedProducer;
+import org.betarss.core.BetaseriesFeedProcessor;
+import org.betarss.core.CrawlerProvider;
 import org.betarss.core.FeedFilter;
 import org.betarss.core.ICrawler;
 import org.betarss.core.RssProducer;
 import org.betarss.domain.Feed;
+import org.betarss.domain.Language;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BetarssController {
 
 	@Autowired
-	private ICrawler cpasbienCrawler;
+	private CrawlerProvider crawlerProvider;
 
 	@Autowired
 	private FeedFilter feedFilter;
@@ -33,8 +35,9 @@ public class BetarssController {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		Feed feed = cpasbienCrawler.getFeed(show, season);
+		Feed feed = getCrawler(language).getFeed(show, season);
 
+		filter = decorateFilter(filter, language);
 		if (!isEmpty(filter)) {
 			feed = feedFilter.filter(feed, filter);
 		}
@@ -48,14 +51,19 @@ public class BetarssController {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		BetaseriesFeedProducer producer = new BetaseriesFeedProducer(cpasbienCrawler);
-		Feed feed = producer.getFeed(login);
+		BetaseriesFeedProcessor processor = new BetaseriesFeedProcessor(getCrawler(language));
+		Feed feed = processor.getFeed(login);
 
+		filter = decorateFilter(filter, language);
 		if (!isEmpty(filter)) {
 			feed = feedFilter.filter(feed, filter);
 		}
 
 		return httpEntity(rssProducer.produceRSS2(feed));
+	}
+
+	private ICrawler getCrawler(String language) {
+		return crawlerProvider.provide(Language.get(language));
 	}
 
 	private HttpEntity<byte[]> httpEntity(String xml) {
@@ -65,8 +73,18 @@ public class BetarssController {
 		return new HttpEntity<byte[]>(xml.getBytes(), header);
 	}
 
+	private String decorateFilter(String filter, String language) {
+		return concatFilters(filter, Language.get(language).getFilter());
+	}
+
+	private String concatFilters(String filter1, String filter2) {
+		if (isEmpty(filter1)) {
+			return filter2;
+		}
+		return isEmpty(filter2) ? filter1 : filter1 + "^" + filter2;
+	}
+
 	private boolean isEmpty(String str) {
 		return str == null || str.isEmpty();
 	}
-
 }

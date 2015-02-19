@@ -2,7 +2,6 @@ package org.betarss.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,17 +15,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class BetaseriesFeedProducer {
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+public class BetaseriesFeedProcessor {
 
 	private ICrawler crawler;
 
-	public BetaseriesFeedProducer(ICrawler crawler) {
+	public BetaseriesFeedProcessor(ICrawler crawler) {
 		this.crawler = crawler;
 	}
 
 	public Feed getFeed(String login) throws IOException {
-		Map<String, Feed> feeds = new HashMap<String, Feed>();
-		List<FeedItem> feedItems = new ArrayList<FeedItem>();
+		Map<String, Feed> feeds = Maps.newHashMap();
+		List<FeedItem> feedItems = Lists.newArrayList();
 		for (String title : getPlanningTitles(login)) {
 			String showName = title.substring(0, title.length() - 7);
 			Feed feed = feeds.get(showName);
@@ -41,7 +43,10 @@ public class BetaseriesFeedProducer {
 				}
 			}
 		}
-		return FeedBuilder.start().withFeedItems(feedItems).get();
+		return FeedBuilder //
+				.start() //
+				.withTitle("Betarss - Betaseries feed") //
+				.withFeedItems(feedItems).get();
 	}
 
 	private List<String> getPlanningTitles(String login) throws IOException {
