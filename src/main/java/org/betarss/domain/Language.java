@@ -20,7 +20,7 @@ public enum Language {
 		return filter;
 	}
 
-	public static Language get(String language) {
+	public static Language parse(String language) {
 		for (Language l : values()) {
 			if (l.language.equals(language)) {
 				return l;

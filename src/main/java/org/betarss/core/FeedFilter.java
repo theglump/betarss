@@ -8,6 +8,7 @@ import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.Language;
+import org.betarss.exception.FeedFilterException;
 import org.josql.Query;
 import org.josql.QueryExecutionException;
 import org.josql.QueryResults;

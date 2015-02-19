@@ -1,4 +1,4 @@
-package org.betarss.core;
+package org.betarss.exception;
 
 public class FeedFilterException extends Exception {
 

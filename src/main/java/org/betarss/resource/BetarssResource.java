@@ -40,7 +40,7 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		Language lang = Language.get(language);
+		Language lang = Language.parse(language);
 		Feed feed = getCrawler(lang).getFeed(show, season);
 		feed = feedFilter.filter(feed, filter, lang);
 
@@ -53,7 +53,7 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		Language lang = Language.get(language);
+		Language lang = Language.parse(language);
 		Feed feed = bsFeedProducer.getFeed(getCrawler(lang), login);
 		feed = feedFilter.filter(feed, filter, lang);
 
