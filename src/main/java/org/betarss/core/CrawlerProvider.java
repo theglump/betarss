@@ -1,7 +1,7 @@
 package org.betarss.core;
 
 import org.betarss.core.internal.CpasbienCrawler;
-import org.betarss.core.internal.SeedpeerCrawler;
+import org.betarss.core.internal.EztvCrawler;
 import org.betarss.domain.Language;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +13,9 @@ public class CrawlerProvider {
 	private CpasbienCrawler cpasbienCrawler;
 
 	@Autowired
-	private SeedpeerCrawler seedpeerCrawler;
+	private EztvCrawler eztvCrawler;
 
 	public ICrawler provide(Language language) {
-		return language == Language.EN ? seedpeerCrawler : cpasbienCrawler;
+		return language == Language.EN ? eztvCrawler : cpasbienCrawler;
 	}
 }

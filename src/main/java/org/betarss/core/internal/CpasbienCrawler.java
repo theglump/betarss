@@ -2,7 +2,6 @@ package org.betarss.core.internal;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,6 +15,8 @@ import org.betarss.domain.FeedItemBuilder;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
 
 @Service
 public class CpasbienCrawler implements ICrawler {
@@ -37,7 +38,7 @@ public class CpasbienCrawler implements ICrawler {
 	}
 
 	private List<FeedItem> getFeed(String html) throws IOException {
-		List<FeedItem> feedItems = new ArrayList<FeedItem>();
+		List<FeedItem> feedItems = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
 		while (m.find()) {
 			FeedItem feedItem = createFeed(m);

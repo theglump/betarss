@@ -1,6 +1,8 @@
-package org.betarss.controller;
+package org.betarss.resource;
 
-import org.betarss.core.BetaseriesFeedProcessor;
+import java.io.IOException;
+
+import org.betarss.core.BSFeedProducer;
 import org.betarss.core.CrawlerProvider;
 import org.betarss.core.FeedFilter;
 import org.betarss.core.ICrawler;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class BetarssController {
+public class BetarssResource {
 
 	@Autowired
 	private CrawlerProvider crawlerProvider;
@@ -28,6 +30,9 @@ public class BetarssController {
 	@Autowired
 	private RssProducer rssProducer;
 
+	@Autowired
+	private BSFeedProducer bsFeedProducer;
+
 	@RequestMapping(value = "feed", method = RequestMethod.GET)
 	public HttpEntity<byte[]> feed( //
 			@RequestParam(required = true) String show, //
@@ -35,14 +40,11 @@ public class BetarssController {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		Feed feed = getCrawler(language).getFeed(show, season);
+		Language lang = Language.get(language);
+		Feed feed = getCrawler(lang).getFeed(show, season);
+		feed = feedFilter.filter(feed, filter, lang);
 
-		filter = decorateFilter(filter, language);
-		if (!isEmpty(filter)) {
-			feed = feedFilter.filter(feed, filter);
-		}
-
-		return httpEntity(rssProducer.produceRSS2(feed));
+		return httpEntity(produceRss(feed));
 	}
 
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
@@ -51,19 +53,19 @@ public class BetarssController {
 			@RequestParam(required = false, defaultValue = "vostfr") String language, //
 			@RequestParam(required = false) String filter) throws Exception {
 
-		BetaseriesFeedProcessor processor = new BetaseriesFeedProcessor(getCrawler(language));
-		Feed feed = processor.getFeed(login);
+		Language lang = Language.get(language);
+		Feed feed = bsFeedProducer.getFeed(getCrawler(lang), login);
+		feed = feedFilter.filter(feed, filter, lang);
 
-		filter = decorateFilter(filter, language);
-		if (!isEmpty(filter)) {
-			feed = feedFilter.filter(feed, filter);
-		}
-
-		return httpEntity(rssProducer.produceRSS2(feed));
+		return httpEntity(produceRss(feed));
 	}
 
-	private ICrawler getCrawler(String language) {
-		return crawlerProvider.provide(Language.get(language));
+	private ICrawler getCrawler(Language language) {
+		return crawlerProvider.provide(language);
+	}
+
+	private String produceRss(Feed feed) throws IOException {
+		return rssProducer.produceRSS2(feed);
 	}
 
 	private HttpEntity<byte[]> httpEntity(String xml) {
@@ -71,20 +73,5 @@ public class BetarssController {
 		header.setContentType(new MediaType("application", "xml"));
 		header.setContentLength(xml.length());
 		return new HttpEntity<byte[]>(xml.getBytes(), header);
-	}
-
-	private String decorateFilter(String filter, String language) {
-		return concatFilters(filter, Language.get(language).getFilter());
-	}
-
-	private String concatFilters(String filter1, String filter2) {
-		if (isEmpty(filter1)) {
-			return filter2;
-		}
-		return isEmpty(filter2) ? filter1 : filter1 + "^" + filter2;
-	}
-
-	private boolean isEmpty(String str) {
-		return str == null || str.isEmpty();
 	}
 }

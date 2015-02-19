@@ -14,27 +14,23 @@ import org.betarss.domain.FeedItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class BetaseriesFeedProcessor {
+@Service
+public class BSFeedProducer {
 
-	private ICrawler crawler;
-
-	public BetaseriesFeedProcessor(ICrawler crawler) {
-		this.crawler = crawler;
-	}
-
-	public Feed getFeed(String login) throws IOException {
-		Map<String, Feed> feeds = Maps.newHashMap();
+	public Feed getFeed(ICrawler crawler, String login) throws IOException {
+		Map<String, Feed> showNameToFeeds = Maps.newHashMap();
 		List<FeedItem> feedItems = Lists.newArrayList();
 		for (String title : getPlanningTitles(login)) {
 			String showName = title.substring(0, title.length() - 7);
-			Feed feed = feeds.get(showName);
+			Feed feed = showNameToFeeds.get(showName);
 			if (feed == null) {
 				feed = crawler.getFeed(showName, getSeason(title));
-				feeds.put(showName, feed);
+				showNameToFeeds.put(showName, feed);
 			}
 			for (FeedItem feedItem : feed.getFeedItems()) {
 				if (feedItem.getTitle().startsWith((title))) {
@@ -43,10 +39,7 @@ public class BetaseriesFeedProcessor {
 				}
 			}
 		}
-		return FeedBuilder //
-				.start() //
-				.withTitle("Betarss - Betaseries feed") //
-				.withFeedItems(feedItems).get();
+		return FeedBuilder.start().withTitle("Betarss - Betaseries' feed").withFeedItems(feedItems).get();
 	}
 
 	private List<String> getPlanningTitles(String login) throws IOException {

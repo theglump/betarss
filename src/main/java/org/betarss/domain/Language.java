@@ -26,6 +26,6 @@ public enum Language {
 				return l;
 			}
 		}
-		return null;
+		throw new IllegalArgumentException("language " + language + " is not supported (fr|vostfr|en)");
 	}
 }

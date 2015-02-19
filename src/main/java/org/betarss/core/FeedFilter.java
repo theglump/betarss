@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
+import org.betarss.domain.Language;
 import org.josql.Query;
 import org.josql.QueryExecutionException;
 import org.josql.QueryResults;
@@ -18,8 +19,14 @@ public class FeedFilter {
 	private static final Pattern expressionPattern = Pattern.compile("[\\!\\d\\w_\\- ]+", Pattern.CASE_INSENSITIVE);
 
 	@SuppressWarnings("unchecked")
-	public Feed filter(Feed feed, String filter) throws FeedFilterException {
+	public Feed filter(Feed feed, String filter, Language language) throws FeedFilterException {
 		Feed result = null;
+
+		filter = decorateFilter(filter, language);
+		if (filter == null) {
+			return feed;
+		}
+
 		try {
 			Query q = new Query();
 			q.parse("SELECT * FROM org.betarss.domain.FeedItem WHERE " + getAsSql(filter));
@@ -49,6 +56,18 @@ public class FeedFilter {
 		}
 		matcher.appendTail(expression);
 		return expression.toString().replaceAll("\\|\\|", " OR ").replaceAll("\\^", " AND ");
+	}
+
+	private String decorateFilter(String filter, Language language) {
+		String langFilter = language.getFilter();
+		if (isEmpty(filter)) {
+			return langFilter;
+		}
+		return isEmpty(langFilter) ? filter : filter + "^" + langFilter;
+	}
+
+	private boolean isEmpty(String str) {
+		return str == null || str.isEmpty();
 	}
 
 }
