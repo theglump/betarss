@@ -1,12 +1,10 @@
 package org.betarss.resource;
 
-import java.io.IOException;
-
 import org.betarss.core.BetaseriesFeedProducer;
 import org.betarss.core.CrawlerProvider;
 import org.betarss.core.FeedFilter;
 import org.betarss.core.ICrawler;
-import org.betarss.core.RssProducer;
+import org.betarss.core.IRssProducer;
 import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ public class BetarssResource {
 	private FeedFilter feedFilter;
 
 	@Autowired
-	private RssProducer rssProducer;
+	private IRssProducer jaxbRssProducer;
 
 	@Autowired
 	private BetaseriesFeedProducer betaseriesFeedProducer;
@@ -44,7 +42,7 @@ public class BetarssResource {
 		Feed feed = getCrawler(lang).getFeed(show, season);
 		feed = feedFilter.filter(feed, filter, lang);
 
-		return httpEntity(rssProducer.get(feed));
+		return httpEntity(produceRss(feed));
 	}
 
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
@@ -64,8 +62,8 @@ public class BetarssResource {
 		return crawlerProvider.provide(language);
 	}
 
-	private String produceRss(Feed feed) throws IOException {
-		return rssProducer.produceRSS2(feed);
+	private String produceRss(Feed feed) throws Exception {
+		return jaxbRssProducer.produceRSS2(feed);
 	}
 
 	private HttpEntity<byte[]> httpEntity(String xml) {

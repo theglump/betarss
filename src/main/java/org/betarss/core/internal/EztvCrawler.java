@@ -1,12 +1,9 @@
 package org.betarss.core.internal;
 
+import static org.betarss.utils.ShowUtils.getFormattedShowSeason;
 import static org.betarss.utils.ShowUtils.upperCaseString;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,14 +13,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.betarss.core.ICrawler;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
-import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
@@ -38,22 +35,16 @@ public class EztvCrawler implements ICrawler {
 
 	private static final Map<String, Integer> TV_SHOW_IDS = Maps.newConcurrentMap();
 
-	private static final Pattern EPISODE_ITEM_PATTERN = Pattern
-			.compile(
-					"(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)",
-					Pattern.DOTALL);
-
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
-		Integer id = getTvShowId(showName);
-		List<FeedItem> feedItems = getFeed(fetchHtml(id, showName, season));
-		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + ShowUtils.getFormattedShowSeason(season)).withFeedItems(feedItems)
-				.get();
+		String html = fetchHtml(showName, season);
+		List<FeedItem> feedItems = getFeed(html, showName, season);
+		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + getFormattedShowSeason(season)).withFeedItems(feedItems).get();
 	}
 
-	private List<FeedItem> getFeed(String html) throws IOException {
+	private List<FeedItem> getFeed(String html, String showName, int season) throws IOException {
 		List<FeedItem> feedItems = new ArrayList<FeedItem>();
-		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
+		Matcher m = getEpidodePattern(showName, season).matcher(html);
 		Date d = null;
 		while (m.find()) {
 			if (m.group(DATE) != null) {
@@ -67,6 +58,12 @@ public class EztvCrawler implements ICrawler {
 		return feedItems;
 	}
 
+	private Pattern getEpidodePattern(String showName, int season) {
+		return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
+				+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)", Pattern.DOTALL
+				| Pattern.CASE_INSENSITIVE);
+	}
+
 	private Date parseDate(String date) {
 		try {
 			return new SimpleDateFormat("dd, MMMMM, yyyy", Locale.US).parse(date);
@@ -75,69 +72,40 @@ public class EztvCrawler implements ICrawler {
 		}
 	}
 
+	private String fetchHtml(String showName, int season) throws IOException {
+		return Jsoup //
+				.connect("https://eztv.ch/search/") //
+				.userAgent("Mozilla/5.0") //
+				.data("SearchString", getTvShowId(showName).toString()) //
+				.post() //
+				.html();
+
+	}
+
 	private Integer getTvShowId(String showName) throws IOException {
-		if (!TV_SHOW_IDS.containsKey(showName)) {
-			String html = Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
-			Matcher matcher = Pattern.compile("<option value=\"(\\d+)\">" + showName + "</option>", Pattern.CASE_INSENSITIVE).matcher(html);
-			if (matcher.find()) {
-				TV_SHOW_IDS.put(showName, Integer.parseInt(matcher.group(1)));
-			}
+		String key = showName.toLowerCase();
+		if (!TV_SHOW_IDS.containsKey(key)) {
+			buildCache();
 		}
-		return TV_SHOW_IDS.get(showName);
+		return TV_SHOW_IDS.get(key);
 	}
 
-	private String fetchHtml(Integer id, String showName, int season) {
-		try {
-			String url = "https://eztv.ch/search/";
-			URL obj = new URL(url);
-			HttpsURLConnection conn = (HttpsURLConnection) obj.openConnection();
-			String postParams = "SearchString=" + id.toString() + "&SearchString1=" + ShowUtils.getFormattedShowSeason(season);
-
-			// Acts like a browser
-			conn.setUseCaches(false);
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Host", "eztv.ch");
-			conn.setRequestProperty("User-Agent", "Mozilla/5.0");
-			conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-			conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-			conn.setRequestProperty("Connection", "keep-alive");
-			conn.setRequestProperty("Referer", "https://eztv.ch");
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			conn.setRequestProperty("Content-Length", Integer.toString(postParams.length()));
-
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-
-			DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-			wr.writeBytes(postParams);
-			wr.flush();
-			wr.close();
-
-			int responseCode = conn.getResponseCode();
-			System.out.println("\nSending 'POST' request to URL : " + url);
-			System.out.println("Post parameters : " + postParams);
-			System.out.println("Response Code : " + responseCode);
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String inputLine;
-			StringBuffer response = new StringBuffer();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-			return response.toString();
-		} catch (Exception e) {
-			return null;
+	private void buildCache() throws IOException {
+		String html = Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
+		Matcher m = Pattern.compile("<option value=\"(\\d+)\">(((?!</option>).)*)</option>").matcher(html);
+		while (m.find()) {
+			TV_SHOW_IDS.put(m.group(2).toLowerCase(), Integer.parseInt(m.group(1)));
 		}
 	}
 
-	//		while (m.find()) {
-	//			for (int i = 0; i < m.groupCount(); i++) {
-	//				System.out.println(i + ":" + m.group(i));
-	//			}
-	//			System.out.print("*************************************");
-	//		}
-	//		return feedItems;
+	@PostConstruct
+	public void postConstruct() throws IOException {
+		buildCache();
+	}
+
+	@PreDestroy
+	public void cleanUp() {
+		TV_SHOW_IDS.clear();
+	}
 
 }
