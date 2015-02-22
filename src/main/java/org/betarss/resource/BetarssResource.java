@@ -2,7 +2,7 @@ package org.betarss.resource;
 
 import java.io.IOException;
 
-import org.betarss.core.BSFeedProducer;
+import org.betarss.core.BetaseriesFeedProducer;
 import org.betarss.core.CrawlerProvider;
 import org.betarss.core.FeedFilter;
 import org.betarss.core.ICrawler;
@@ -31,7 +31,7 @@ public class BetarssResource {
 	private RssProducer rssProducer;
 
 	@Autowired
-	private BSFeedProducer bsFeedProducer;
+	private BetaseriesFeedProducer betaseriesFeedProducer;
 
 	@RequestMapping(value = "feed", method = RequestMethod.GET)
 	public HttpEntity<byte[]> feed( //
@@ -44,7 +44,7 @@ public class BetarssResource {
 		Feed feed = getCrawler(lang).getFeed(show, season);
 		feed = feedFilter.filter(feed, filter, lang);
 
-		return httpEntity(produceRss(feed));
+		return httpEntity(rssProducer.get(feed));
 	}
 
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
@@ -54,7 +54,7 @@ public class BetarssResource {
 			@RequestParam(required = false) String filter) throws Exception {
 
 		Language lang = Language.parse(language);
-		Feed feed = bsFeedProducer.getFeed(getCrawler(lang), login);
+		Feed feed = betaseriesFeedProducer.getFeed(getCrawler(lang), login);
 		feed = feedFilter.filter(feed, filter, lang);
 
 		return httpEntity(produceRss(feed));

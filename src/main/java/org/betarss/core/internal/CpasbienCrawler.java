@@ -1,5 +1,7 @@
 package org.betarss.core.internal;
 
+import static org.betarss.utils.ShowUtils.upperCaseString;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +34,7 @@ public class CpasbienCrawler implements ICrawler {
 	public Feed getFeed(String showName, int season) throws IOException {
 		return FeedBuilder //
 				.start() //
-				.withTitle(showName + " " + ShowUtils.getFormattedShowSeason(season)) //
+				.withTitle(upperCaseString(showName) + " " + ShowUtils.getFormattedShowSeason(season)) //
 				.withFeedItems(getFeed(fetchHtml(showName, season))) //
 				.get();
 	}

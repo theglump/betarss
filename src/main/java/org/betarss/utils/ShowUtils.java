@@ -16,4 +16,12 @@ public class ShowUtils {
 		return "S" + (season < 10 ? "0" + season : season);
 	}
 
+	public static String upperCaseString(String str) {
+		StringBuilder sb = new StringBuilder();
+		for (String word : str.split(" ")) {
+			sb.append(sb.length() > 0 ? " " : "");
+			sb.append(word.substring(0, 1).toUpperCase() + word.substring(1));
+		}
+		return sb.toString();
+	}
 }
