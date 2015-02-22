@@ -35,7 +35,7 @@ public class FeedItem {
 		return description;
 	}
 
-	@XmlElement(name = "guid")
+	@XmlElement(name = "link")
 	public String getLocation() {
 		return location;
 	}

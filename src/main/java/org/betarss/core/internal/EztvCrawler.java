@@ -1,5 +1,7 @@
 package org.betarss.core.internal;
 
+import static org.betarss.utils.ShowUtils.upperCaseString;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,7 +47,8 @@ public class EztvCrawler implements ICrawler {
 	public Feed getFeed(String showName, int season) throws IOException {
 		Integer id = getTvShowId(showName);
 		List<FeedItem> feedItems = getFeed(fetchHtml(id, showName, season));
-		return FeedBuilder.start().withFeedItems(feedItems).get();
+		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + ShowUtils.getFormattedShowSeason(season)).withFeedItems(feedItems)
+				.get();
 	}
 
 	private List<FeedItem> getFeed(String html) throws IOException {
