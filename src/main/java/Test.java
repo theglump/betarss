@@ -71,9 +71,8 @@ public class Test {
 		// 2. Construct above post's content and then send a POST request for
 		// authentication
 		//http.GetPageContent(gmail);
-		//http.sendPost(url, "req_username=theglump&req_password=ctkcr9jn&form_sent=1&redirect_url=index.php");
 
-		boolean logged = wawa.login("theglump", "ctkcr9jn");
+		boolean logged = wawa.login("coco", "coco");
 		if (!logged) {
 			throw new BetarssException("pas pu se logger");
 		}
