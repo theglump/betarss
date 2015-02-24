@@ -82,7 +82,7 @@ public class EztvCrawler implements ICrawler {
 
 	}
 
-	private Integer getTvShowId(String showName) throws IOException {
+	private static Integer getTvShowId(String showName) throws IOException {
 		String key = showName.toLowerCase();
 		if (!TV_SHOW_IDS.containsKey(key)) {
 			buildCache();
@@ -90,7 +90,7 @@ public class EztvCrawler implements ICrawler {
 		return TV_SHOW_IDS.get(key);
 	}
 
-	private void buildCache() throws IOException {
+	private static void buildCache() throws IOException {
 		String html = Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
 		Matcher m = Pattern.compile("<option value=\"(\\d+)\">(((?!</option>).)*)</option>").matcher(html);
 		while (m.find()) {

@@ -15,6 +15,7 @@ public class FeedItem {
 	private String location;
 	private Date date;
 
+	@SuppressWarnings("unused")
 	private FeedItem() {
 	}
 

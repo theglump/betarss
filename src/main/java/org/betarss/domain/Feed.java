@@ -13,6 +13,7 @@ public class Feed {
 	private String title;
 	private List<FeedItem> feedItems;
 
+	@SuppressWarnings("unused")
 	private Feed() {
 
 	}
