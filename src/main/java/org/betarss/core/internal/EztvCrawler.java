@@ -40,19 +40,34 @@ public class EztvCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
+		String html = tryToFetchHtml(showName);
+		List<FeedItem> feedItems = getFeed(html, showName, season);
+		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + getFormattedShowSeason(season)).withFeedItems(feedItems).get();
+	}
+
+	private String tryToFetchHtml(String showName) {
 		int times = 0;
 		String html = null;
 		while (html == null) {
 			try {
-				html = fetchHtml(showName, season);
+				html = fetchHtml(showName);
 			} catch (Exception e) {
-				if (times++ == FETCH_HTML_RETRY_NUMBER) {
+				if (++times == FETCH_HTML_RETRY_NUMBER) {
 					throw new BetarssException(e);
 				}
 			}
 		}
-		List<FeedItem> feedItems = getFeed(html, showName, season);
-		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + getFormattedShowSeason(season)).withFeedItems(feedItems).get();
+		return html;
+	}
+
+	private String fetchHtml(String showName) throws IOException {
+		String html;
+		html = Jsoup.connect("https://eztv.ch/search/") //
+				.userAgent("Mozilla/5.0") //
+				.data("SearchString", getTvShowId(showName).toString()) //
+				.post() //
+				.html();
+		return html;
 	}
 
 	private List<FeedItem> getFeed(String html, String showName, int season) throws IOException {
@@ -85,15 +100,6 @@ public class EztvCrawler implements ICrawler {
 		}
 	}
 
-	private String fetchHtml(String showName, int season) throws IOException {
-		return Jsoup.connect("https://eztv.ch/search/") //
-				.userAgent("Mozilla/5.0") //
-				.data("SearchString", getTvShowId(showName).toString()) //
-				.post() //
-				.html();
-
-	}
-
 	private static Integer getTvShowId(String showName) throws IOException {
 		String key = showName.toLowerCase();
 		if (!TV_SHOW_IDS.containsKey(key)) {
@@ -106,7 +112,9 @@ public class EztvCrawler implements ICrawler {
 		String html = Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
 		Matcher m = Pattern.compile("<option value=\"(\\d+)\">(((?!</option>).)*)</option>").matcher(html);
 		while (m.find()) {
-			TV_SHOW_IDS.put(m.group(2).toLowerCase(), Integer.parseInt(m.group(1)));
+			String showName = m.group(2).toLowerCase();
+			Integer id = Integer.parseInt(m.group(1));
+			TV_SHOW_IDS.put(showName, id);
 		}
 	}
 
