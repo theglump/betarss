@@ -1,8 +1,8 @@
-package org.betarss.domain;
+package org.betarss.batch;
 
 public class DownloadLinkBuilder {
 
-	private DownloadLink downloadLink = new DownloadLink();
+	private final DownloadLink downloadLink = new DownloadLink();
 
 	public static DownloadLinkBuilder start() {
 		return new DownloadLinkBuilder();

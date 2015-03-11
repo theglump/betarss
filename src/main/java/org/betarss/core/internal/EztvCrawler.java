@@ -21,6 +21,7 @@ import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
+import org.betarss.exception.BetarssException;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,8 @@ import com.google.common.collect.Maps;
 
 @Service
 public class EztvCrawler implements ICrawler {
+
+	private static final int FETCH_HTML_RETRY_NUMBER = 10;
 
 	private static final int DATE = 2;
 	private static final int TITLE = 4;
@@ -37,7 +40,17 @@ public class EztvCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
-		String html = fetchHtml(showName, season);
+		int times = 0;
+		String html = null;
+		while (html == null) {
+			try {
+				html = fetchHtml(showName, season);
+			} catch (Exception e) {
+				if (times++ == FETCH_HTML_RETRY_NUMBER) {
+					throw new BetarssException(e);
+				}
+			}
+		}
 		List<FeedItem> feedItems = getFeed(html, showName, season);
 		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + getFormattedShowSeason(season)).withFeedItems(feedItems).get();
 	}
@@ -73,8 +86,7 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String fetchHtml(String showName, int season) throws IOException {
-		return Jsoup //
-				.connect("https://eztv.ch/search/") //
+		return Jsoup.connect("https://eztv.ch/search/") //
 				.userAgent("Mozilla/5.0") //
 				.data("SearchString", getTvShowId(showName).toString()) //
 				.post() //
@@ -99,8 +111,12 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	@PostConstruct
-	public void postConstruct() throws IOException {
-		buildCache();
+	public void postConstruct() {
+		try {
+			buildCache();
+		} catch (Exception e) {
+			// cache will be build anyways
+		}
 	}
 
 	@PreDestroy

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class WawaHttpUrlConnection {
 
@@ -20,7 +21,7 @@ public class WawaHttpUrlConnection {
 	private static final String HOST_URL = "forum.wawa-mania.ec";
 
 	private boolean logged = false;
-	private List<String> cookies;
+	private List<String> cookies = Lists.newArrayList();
 
 	public WawaHttpUrlConnection() {
 		CookieHandler.setDefault(new CookieManager());
@@ -88,10 +89,8 @@ public class WawaHttpUrlConnection {
 		connection.setRequestProperty("User-Agent", USER_AGENT);
 		connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 		connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-		if (cookies != null) {
-			for (String cookie : cookies) {
-				connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
-			}
+		for (String cookie : cookies) {
+			connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
 		}
 		int responseCode = connection.getResponseCode();
 		System.out.println("\nSending 'GET' request to URL : " + url);
@@ -104,7 +103,7 @@ public class WawaHttpUrlConnection {
 			response.append(inputLine);
 		}
 		in.close();
-		cookies = connection.getHeaderFields().get("Set-Cookie");
+		cookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
 		return response.toString();
 	}
 

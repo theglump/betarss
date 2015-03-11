@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.betarss.batch.Movie;
 import org.betarss.batch.WawaCrawler;
 import org.betarss.batch.WawaCrawler.Result;
 import org.betarss.batch.WawaHttpUrlConnection;
-import org.betarss.domain.Movie;
 import org.betarss.exception.BetarssException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,7 +33,7 @@ public class Test {
 
 		Result result = new WawaCrawler().crawl();
 		System.out.println("toAdd : ");
-		for (Movie movie : result.getToAdd()) {
+		for (Movie movie : result.getMoviesToAdd()) {
 
 		}
 		//		Pattern p3 = Pattern

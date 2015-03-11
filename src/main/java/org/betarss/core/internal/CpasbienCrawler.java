@@ -32,11 +32,9 @@ public class CpasbienCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(String showName, int season) throws IOException {
-		return FeedBuilder //
-				.start() //
+		return FeedBuilder.start() //
 				.withTitle(upperCaseString(showName) + " " + ShowUtils.getFormattedShowSeason(season)) //
-				.withFeedItems(getFeed(fetchHtml(showName, season))) //
-				.get();
+				.withFeedItems(getFeed(fetchHtml(showName, season))).get();
 	}
 
 	private List<FeedItem> getFeed(String html) throws IOException {
@@ -50,21 +48,16 @@ public class CpasbienCrawler implements ICrawler {
 	}
 
 	private FeedItem createFeed(Matcher m) {
-		return FeedItemBuilder.start(). //
-				withTitle(m.group(TITLE)). //
+		return FeedItemBuilder.start().withTitle(m.group(TITLE)). //
 				withDescription(m.group(TITLE)). //
 				withLocation(getLocation(m.group(TORRENT_NAME))). //
-				withDate(parseDate(m.group(DATE))). //
-				get();
+				withDate(parseDate(m.group(DATE))).get();
 	}
 
 	private String fetchHtml(String showName, int season) throws IOException {
-		return Jsoup //
-				.connect("http://www.cpasbien.pw/recherche/") //
-				.userAgent("Mozilla") //
+		return Jsoup.connect("http://www.cpasbien.pw/recherche/").userAgent("Mozilla") //
 				.data("champ_recherche", showName + " " + ShowUtils.getFormattedShowSeason(season)) //
-				.post() //
-				.html();
+				.post().html();
 	}
 
 	private Date parseDate(String date) {

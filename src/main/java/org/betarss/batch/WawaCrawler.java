@@ -1,32 +1,43 @@
 package org.betarss.batch;
 
+import java.io.IOException;
 import java.util.List;
 
-import org.betarss.domain.Movie;
+import org.betarss.exception.BetarssException;
 
 import com.google.common.collect.Lists;
 
 public class WawaCrawler {
 
-	public class Result {
-		private List<Movie> toAdd = Lists.newArrayList();
-		private List<Movie> toDelete = Lists.newArrayList();
+	private final WawaHttpUrlConnection connection = new WawaHttpUrlConnection();
 
-		public List<Movie> getToAdd() {
-			return toAdd;
+	public class Result {
+		private List<Movie> moviesToAdd = Lists.newArrayList();
+		private List<Movie> moviesToDelete = Lists.newArrayList();
+
+		public List<Movie> getMoviesToAdd() {
+			return moviesToAdd;
 		}
 
-		public List<Movie> getToDelete() {
-			return toDelete;
+		public List<Movie> getMoviesToDelete() {
+			return moviesToDelete;
 		}
 	}
 
-	public Result crawl() {
+	public Result crawl() throws IOException {
 		return crawl(null);
 	}
 
-	public Result crawl(List<Movie> existingMovies) {
+	public Result crawl(List<Movie> existingMovies) throws IOException {
+		login();
+		String html = connection.getPageContent("http://wawawa.com/lzpdekode");
 		return new Result();
+	}
+
+	private void login() throws IOException {
+		if (!connection.login("theglump", "ctkcr9jn")) {
+			throw new BetarssException("could not log in wawa website");
+		}
 	}
 
 }

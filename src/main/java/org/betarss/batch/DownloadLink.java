@@ -1,4 +1,4 @@
-package org.betarss.domain;
+package org.betarss.batch;
 
 public class DownloadLink {
 
