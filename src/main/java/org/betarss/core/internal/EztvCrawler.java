@@ -67,7 +67,6 @@ public class EztvCrawler implements ICrawler {
 				.data("SearchString", getTvShowId(showName).toString()) //
 				.post() //
 				.html();
-		System.out.println(html);
 		return html;
 	}
 
