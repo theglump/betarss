@@ -30,6 +30,7 @@ import com.google.common.collect.Maps;
 @Service
 public class EztvCrawler implements ICrawler {
 
+	private static final boolean MAGNET = false;
 	private static final int FETCH_HTML_RETRY_NUMBER = 10;
 
 	private static final int DATE = 2;
@@ -61,12 +62,12 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String fetchHtml(String showName) throws IOException {
-		String html;
-		html = Jsoup.connect("https://eztv.ch/search/") //
+		String html = Jsoup.connect("https://eztv.ch/search/") //
 				.userAgent("Mozilla/5.0") //
 				.data("SearchString", getTvShowId(showName).toString()) //
 				.post() //
 				.html();
+		System.out.println(html);
 		return html;
 	}
 
@@ -87,9 +88,15 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private Pattern getEpidodePattern(String showName, int season) {
-		return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
-				+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)", Pattern.DOTALL
-				| Pattern.CASE_INSENSITIVE);
+		if (MAGNET) {
+			return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
+					+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)", Pattern.DOTALL
+					| Pattern.CASE_INSENSITIVE);
+		} else {
+			return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
+					+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"((((?!\").)*))\" class=\"download_1\"((?!download_1).)*)",
+					Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+		}
 	}
 
 	private Date parseDate(String date) {
@@ -123,7 +130,7 @@ public class EztvCrawler implements ICrawler {
 		try {
 			buildCache();
 		} catch (Exception e) {
-			// cache will be build anyways
+			// cache will be build later anyway
 		}
 	}
 
