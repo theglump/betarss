@@ -85,7 +85,7 @@ public class EztvCrawler implements ICrawler {
 				String title = m.group(TITLE);
 				String filename = title.replace(" ", ".") + ".mp4";
 				FeedItem feedItem = FeedItemBuilder.start().withTitle(title).withDescription(title).withDate(d) //
-						.withLocation(m.group(LOCATION)).withFilename(filename).get();
+						.withLocation("http://192.168.1.39:8080/betarss/torrent?location=" + m.group(LOCATION)).withFilename(filename).get();
 				feedItems.add(feedItem);
 			}
 		}

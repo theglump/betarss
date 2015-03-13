@@ -1,8 +1,6 @@
 package org.betarss.resource;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,6 +11,7 @@ import org.betarss.core.ICrawler;
 import org.betarss.core.IRssProducer;
 import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
+import org.betarss.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -81,11 +80,9 @@ public class BetarssResource {
 	@RequestMapping(value = "torrent", method = RequestMethod.GET)
 	@ResponseBody
 	public void getFile(@RequestParam String location, HttpServletResponse response) throws IOException {
-		URL url = new URL(location);
-		URLConnection connection = url.openConnection();
 		response.setContentType("application/x-bittorrent");
-		response.setHeader("Content-Disposition", "filename=" + location.hashCode() + ".torrent");
-		ByteStreams.copy(connection.getInputStream(), response.getOutputStream());
+		response.setHeader("Content-Disposition", " attachment; filename=" + location.hashCode() + ".torrent");
+		ByteStreams.copy(Utils.getUrlDataInputStream(location), response.getOutputStream());
 		response.flushBuffer();
 	}
 
@@ -103,4 +100,5 @@ public class BetarssResource {
 		header.setContentLength(xml.length());
 		return new HttpEntity<byte[]>(xml.getBytes(), header);
 	}
+
 }
