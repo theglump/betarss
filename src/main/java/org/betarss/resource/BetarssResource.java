@@ -12,6 +12,8 @@ import org.betarss.core.IRssProducer;
 import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.betarss.utils.Utils;
+import org.hsqldb.lib.StringInputStream;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,10 @@ import com.google.common.io.ByteStreams;
 
 @Controller
 public class BetarssResource {
+
+	static {
+		Class u = Utils.class;
+	}
 
 	@Autowired
 	private CrawlerProvider crawlerProvider;
@@ -80,9 +86,9 @@ public class BetarssResource {
 	@RequestMapping(value = "torrent", method = RequestMethod.GET)
 	@ResponseBody
 	public void getFile(@RequestParam String location, HttpServletResponse response) throws IOException {
-		response.setContentType("application/x-bittorrent");
+		String content = Jsoup.connect(location).ignoreContentType(true).get().body().text();
 		response.setHeader("Content-Disposition", " attachment; filename=" + location.hashCode() + ".torrent");
-		ByteStreams.copy(Utils.getUrlDataInputStream(location), response.getOutputStream());
+		ByteStreams.copy(new StringInputStream(content), response.getOutputStream());
 		response.flushBuffer();
 	}
 

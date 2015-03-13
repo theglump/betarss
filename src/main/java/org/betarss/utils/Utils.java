@@ -1,10 +1,5 @@
 package org.betarss.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
@@ -33,22 +28,6 @@ public class Utils {
 				}
 			}
 		}
-	}
-
-	public static InputStream getUrlDataInputStream(String url) throws MalformedURLException, IOException {
-		HttpURLConnection connection = openConnection(url);
-		int responseCode = connection.getResponseCode();
-		while ((responseCode / 100) == 3) {
-			connection = openConnection(connection.getHeaderField("Location"));
-			responseCode = connection.getResponseCode();
-		}
-		return connection.getInputStream();
-	}
-
-	private static HttpURLConnection openConnection(String location) throws MalformedURLException, IOException {
-		URL url = new URL(location);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		return connection;
 	}
 
 	static {
