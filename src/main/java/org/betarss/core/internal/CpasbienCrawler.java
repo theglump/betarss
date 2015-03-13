@@ -37,6 +37,12 @@ public class CpasbienCrawler implements ICrawler {
 				.withFeedItems(getFeed(fetchHtml(showName, season))).get();
 	}
 
+	@Override
+	public Feed getFeed() throws IOException {
+		return FeedBuilder.start() //
+				.withFeedItems(getFeed(fetchHtml())).get();
+	}
+
 	private List<FeedItem> getFeed(String html) throws IOException {
 		List<FeedItem> feedItems = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
@@ -52,6 +58,12 @@ public class CpasbienCrawler implements ICrawler {
 				withDescription(m.group(TITLE)). //
 				withLocation(getLocation(m.group(TORRENT_NAME))). //
 				withDate(parseDate(m.group(DATE))).get();
+	}
+
+	private String fetchHtml() throws IOException {
+		String html = Jsoup.connect("http://www.cpasbien.pw/view_cat.php?categorie=series").userAgent("Mozilla") //
+				.get().html();
+		return html;
 	}
 
 	private String fetchHtml(String showName, int season) throws IOException {

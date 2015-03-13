@@ -1,5 +1,11 @@
 package org.betarss.resource;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.betarss.core.BetaseriesFeedProducer;
 import org.betarss.core.CrawlerProvider;
 import org.betarss.core.FeedFilter;
@@ -15,6 +21,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.common.io.ByteStreams;
 
 @Controller
 public class BetarssResource {
@@ -45,6 +54,17 @@ public class BetarssResource {
 		return httpEntity(produceRss(feed));
 	}
 
+	@RequestMapping(value = "last", method = RequestMethod.GET)
+	public HttpEntity<byte[]> feed( //
+			@RequestParam(required = false, defaultValue = "vostfr") String language) throws Exception {
+
+		Language lang = Language.parse(language);
+		Feed feed = getCrawler(lang).getFeed();
+		feed = feedFilter.filter(feed, null, lang);
+
+		return httpEntity(produceRss(feed));
+	}
+
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
 	public HttpEntity<byte[]> betaseries( //
 			@RequestParam(required = true) String login, //
@@ -56,6 +76,17 @@ public class BetarssResource {
 		feed = feedFilter.filter(feed, filter, lang);
 
 		return httpEntity(produceRss(feed));
+	}
+
+	@RequestMapping(value = "torrent", method = RequestMethod.GET)
+	@ResponseBody
+	public void getFile(@RequestParam String location, HttpServletResponse response) throws IOException {
+		URL url = new URL(location);
+		URLConnection connection = url.openConnection();
+		response.setContentType("application/x-bittorrent");
+		response.setHeader("Content-Disposition", "filename=" + location.hashCode() + ".torrent");
+		ByteStreams.copy(connection.getInputStream(), response.getOutputStream());
+		response.flushBuffer();
 	}
 
 	private ICrawler getCrawler(Language language) {

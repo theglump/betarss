@@ -7,6 +7,7 @@ public class FeedItemBuilder {
 	protected String title;
 	protected String description;
 	protected String location;
+	protected String filename;
 	protected Date date;
 
 	public static FeedItemBuilder start() {
@@ -25,6 +26,11 @@ public class FeedItemBuilder {
 
 	public FeedItemBuilder withLocation(String location) {
 		this.location = location;
+		return this;
+	}
+
+	public FeedItemBuilder withFilename(String filename) {
+		this.filename = filename;
 		return this;
 	}
 

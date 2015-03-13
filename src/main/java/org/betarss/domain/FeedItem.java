@@ -7,12 +7,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "item")
-@XmlType(propOrder = { "title", "description", "location", "date" })
+@XmlType(propOrder = { "title", "description", "location", "filename", "date" })
 public class FeedItem {
 
 	private String title;
 	private String description;
 	private String location;
+	private String filename;
 	private Date date;
 
 	@SuppressWarnings("unused")
@@ -23,6 +24,7 @@ public class FeedItem {
 		this.title = builder.title;
 		this.description = builder.description;
 		this.location = builder.location;
+		this.filename = builder.filename;
 		this.date = builder.date;
 	}
 
@@ -39,6 +41,11 @@ public class FeedItem {
 	@XmlElement(name = "link")
 	public String getLocation() {
 		return location;
+	}
+
+	@XmlElement(name = "filename")
+	public String getFilename() {
+		return filename;
 	}
 
 	@XmlElement(name = "pubDate")

@@ -1,7 +1,8 @@
 package org.betarss.core.internal;
 
 import static org.betarss.utils.ShowUtils.getFormattedShowSeason;
-import static org.betarss.utils.ShowUtils.upperCaseString;
+import static org.betarss.utils.Utils.doTry;
+import static org.jsoup.Jsoup.connect;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -21,7 +22,8 @@ import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
-import org.betarss.exception.BetarssException;
+import org.betarss.utils.ShowUtils;
+import org.betarss.utils.Utils.Try;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,13 @@ import com.google.common.collect.Maps;
 
 @Service
 public class EztvCrawler implements ICrawler {
+
+	private static final String SEARCH_URL = "https://eztv.ch/search/";
+
+	private static final String PATTERN_1 = "(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(";
+	private static final String PATTERN_2_START = "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*";
+	private static final String PATTERN_2_MAGNET = PATTERN_2_START + "<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)";
+	private static final String PATTERN_2_TORRENT = PATTERN_2_START + "<a href=\"((((?!\").)*))\" class=\"download_1\"((?!download_1).)*)";
 
 	private static final boolean MAGNET = false;
 	private static final int FETCH_HTML_RETRY_NUMBER = 10;
@@ -40,62 +49,59 @@ public class EztvCrawler implements ICrawler {
 	private static final Map<String, Integer> TV_SHOW_IDS = Maps.newConcurrentMap();
 
 	@Override
-	public Feed getFeed(String showName, int season) throws IOException {
-		String html = tryToFetchHtml(showName);
-		List<FeedItem> feedItems = getFeed(html, showName, season);
-		return FeedBuilder.start().withTitle(upperCaseString(showName) + " " + getFormattedShowSeason(season)).withFeedItems(feedItems).get();
-	}
+	public Feed getFeed(final String showName, int season) throws IOException {
+		List<FeedItem> feedItems = getFeed(doTry(FETCH_HTML_RETRY_NUMBER, new Try<String>() {
 
-	private String tryToFetchHtml(String showName) {
-		int times = 0;
-		String html = null;
-		while (html == null) {
-			try {
-				html = fetchHtml(showName);
-			} catch (Exception e) {
-				if (++times == FETCH_HTML_RETRY_NUMBER) {
-					throw new BetarssException(e);
-				}
+			@Override
+			public String doTry() throws Exception {
+				return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(showName).toString()).post().html();
 			}
-		}
-		return html;
+
+		}), getEntryPattern(showName + " " + getFormattedShowSeason(season)));
+		return FeedBuilder.start().withTitle(computeTitle(showName, season)).withFeedItems(feedItems).get();
 	}
 
-	private String fetchHtml(String showName) throws IOException {
-		String html = Jsoup.connect("https://eztv.ch/search/") //
-				.userAgent("Mozilla/5.0") //
-				.data("SearchString", getTvShowId(showName).toString()) //
-				.post() //
-				.html();
-		return html;
+	@Override
+	public Feed getFeed() throws IOException {
+		List<FeedItem> feedItems = getFeed(doTry(FETCH_HTML_RETRY_NUMBER, new Try<String>() {
+
+			@Override
+			public String doTry() throws Exception {
+				return connect(SEARCH_URL).userAgent("Mozilla/5.0").post().html();
+			}
+
+		}), getEntryPattern(""));
+		return FeedBuilder.start().withTitle(null).withFeedItems(feedItems).get();
 	}
 
-	private List<FeedItem> getFeed(String html, String showName, int season) throws IOException {
+	private List<FeedItem> getFeed(String html, Pattern pattern) throws IOException {
 		List<FeedItem> feedItems = new ArrayList<FeedItem>();
-		Matcher m = getEpidodePattern(showName, season).matcher(html);
+		Matcher m = pattern.matcher(html);
 		Date d = null;
 		while (m.find()) {
 			if (m.group(DATE) != null) {
 				d = parseDate(m.group(DATE));
 			} else {
 				String title = m.group(TITLE);
-				FeedItem feedItem = FeedItemBuilder.start().withTitle(title).withDescription(title).withDate(d).withLocation(m.group(LOCATION)).get();
+				String filename = title.replace(" ", ".") + ".mp4";
+				FeedItem feedItem = FeedItemBuilder.start().withTitle(title).withDescription(title).withDate(d) //
+						.withLocation(m.group(LOCATION)).withFilename(filename).get();
 				feedItems.add(feedItem);
 			}
 		}
 		return feedItems;
 	}
 
-	private Pattern getEpidodePattern(String showName, int season) {
-		if (MAGNET) {
-			return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
-					+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)", Pattern.DOTALL
-					| Pattern.CASE_INSENSITIVE);
-		} else {
-			return Pattern.compile("(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(" + showName + " " + getFormattedShowSeason(season)
-					+ "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"((((?!\").)*))\" class=\"download_1\"((?!download_1).)*)",
-					Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-		}
+	private Pattern getEntryPattern(String label) {
+		return MAGNET ? getMagnetPattern(label) : getTorrentPattern(label);
+	}
+
+	private Pattern getTorrentPattern(String label) {
+		return Pattern.compile(PATTERN_1 + label + PATTERN_2_TORRENT, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+	}
+
+	private Pattern getMagnetPattern(String label) {
+		return Pattern.compile(PATTERN_1 + label + PATTERN_2_MAGNET, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 	}
 
 	private Date parseDate(String date) {
@@ -112,6 +118,10 @@ public class EztvCrawler implements ICrawler {
 			buildCache();
 		}
 		return TV_SHOW_IDS.get(key);
+	}
+
+	private String computeTitle(final String showName, int season) {
+		return ShowUtils.upperCaseString(showName) + " " + getFormattedShowSeason(season);
 	}
 
 	private static void buildCache() throws IOException {
