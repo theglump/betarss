@@ -1,4 +1,4 @@
-package org.betarss.core;
+package org.betarss.feed;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
-import org.betarss.domain.Language;
 import org.betarss.exception.FeedFilterException;
 import org.josql.Query;
 import org.josql.QueryExecutionException;
@@ -20,11 +19,10 @@ public class FeedFilter {
 	private static final Pattern expressionPattern = Pattern.compile("[\\!\\d\\w_\\- ]+", Pattern.CASE_INSENSITIVE);
 
 	@SuppressWarnings("unchecked")
-	public Feed filter(Feed feed, String filter, Language language) throws FeedFilterException {
+	public Feed filter(Feed feed, String filter) throws FeedFilterException {
 		Feed result = null;
 
-		filter = decorateFilter(filter, language);
-		if (filter == null) {
+		if (filter == null || filter.isEmpty()) {
 			return feed;
 		}
 
@@ -57,18 +55,6 @@ public class FeedFilter {
 		}
 		matcher.appendTail(expression);
 		return expression.toString().replaceAll("\\|\\|", " OR ").replaceAll("\\^", " AND ");
-	}
-
-	private String decorateFilter(String filter, Language language) {
-		String langFilter = language.getFilter();
-		if (isEmpty(filter)) {
-			return langFilter;
-		}
-		return isEmpty(langFilter) ? filter : filter + "^" + langFilter;
-	}
-
-	private boolean isEmpty(String str) {
-		return str == null || str.isEmpty();
 	}
 
 }

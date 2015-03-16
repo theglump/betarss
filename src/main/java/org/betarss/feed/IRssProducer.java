@@ -1,4 +1,4 @@
-package org.betarss.core;
+package org.betarss.feed;
 
 import org.betarss.domain.Feed;
 

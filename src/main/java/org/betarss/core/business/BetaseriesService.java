@@ -1,4 +1,4 @@
-package org.betarss.core;
+package org.betarss.core.business;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
+import org.betarss.domain.FeedSearch;
+import org.betarss.provider.ISearchEngine;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -20,13 +22,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @Service
-public class BetaseriesFeedProducer {
+public class BetaseriesService implements IBetaseriesService {
 
-	public Feed getFeed(ICrawler crawler, String login) throws IOException {
+	@Override
+	public Feed getFeed(ISearchEngine searchEngine, FeedSearch feedSearch, String login) throws IOException {
 		Map<String, Feed> showNameToFeeds = Maps.newHashMap();
 		List<FeedItem> feedItems = Lists.newArrayList();
-		for (String title : getPlanningTitles(login)) {
-			Feed feed = getFeed(crawler, showNameToFeeds, title);
+		for (final String title : getPlanningTitles(login)) {
+			Feed feed = getFeed(searchEngine, showNameToFeeds, title);
 			for (FeedItem feedItem : feed.getFeedItems()) {
 				if (feedItem.getTitle().startsWith((title))) {
 					feedItems.add(feedItem);
@@ -36,11 +39,14 @@ public class BetaseriesFeedProducer {
 		return FeedBuilder.start().withTitle(login + "@betaseries' feed").withFeedItems(feedItems).get();
 	}
 
-	private Feed getFeed(ICrawler crawler, Map<String, Feed> showNameToFeeds, String title) throws IOException {
+	private Feed getFeed(ISearchEngine searchEngine, Map<String, Feed> showNameToFeeds, String title) throws IOException {
 		String showName = title.substring(0, title.length() - 7);
 		Feed feed = showNameToFeeds.get(showName);
 		if (feed == null) {
-			feed = crawler.getFeed(showName, getSeason(title));
+			FeedSearch feedSearch = new FeedSearch();
+			feedSearch.show = showName;
+			feedSearch.season = getSeason(title);
+			feed = searchEngine.getFeed(feedSearch);
 			showNameToFeeds.put(showName, feed);
 		}
 		return feed;

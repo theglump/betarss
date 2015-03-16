@@ -1,11 +1,10 @@
-package org.betarss.core.internal;
+package org.betarss.feed;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 
-import org.betarss.core.IRssProducer;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedItem;
 import org.springframework.stereotype.Service;

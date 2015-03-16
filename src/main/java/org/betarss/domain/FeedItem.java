@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.google.common.base.Objects;
+
 @XmlRootElement(name = "item")
 @XmlType(propOrder = { "title", "description", "location", "filename", "date" })
 public class FeedItem {
@@ -51,6 +53,17 @@ public class FeedItem {
 	@XmlElement(name = "pubDate")
 	public Date getDate() {
 		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	@Override
+	@SuppressWarnings(value = "deprecation")
+	public String toString() {
+		return Objects.toStringHelper(this).add("title", title).add("description", description). //
+				add("location", location).add("filename", filename).add("date", date).toString();
 	}
 
 }

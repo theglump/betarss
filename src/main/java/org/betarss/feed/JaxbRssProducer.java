@@ -1,4 +1,4 @@
-package org.betarss.core.internal;
+package org.betarss.feed;
 
 import java.io.StringWriter;
 
@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.betarss.core.IRssProducer;
 import org.betarss.domain.Feed;
 import org.springframework.stereotype.Service;
 
