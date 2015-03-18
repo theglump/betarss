@@ -1,4 +1,4 @@
-package org.betarss.provider;
+package org.betarss.provider.cpasbien;
 
 import static org.betarss.utils.ShowUtils.upperCaseString;
 
@@ -9,15 +9,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
-import org.betarss.domain.FeedSearch;
-import org.betarss.domain.Language;
-import org.betarss.domain.Provider;
-import org.betarss.domain.Quality;
-import org.betarss.utils.FilterUtils;
+import org.betarss.provider.ICrawler;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 @Service
-public class CpasbienSearchEngine implements ISearchEngine {
+public class CpasbienCrawler implements ICrawler {
 
 	private static final String SEARCH_URL = "http://www.cpasbien.pw/recherche/";
 	private static final String LAST_ITEMS_URL = "http://www.cpasbien.pw/view_cat.php?categorie=series";
@@ -37,34 +34,13 @@ public class CpasbienSearchEngine implements ISearchEngine {
 	private static final int TITLE = 4;
 
 	@Override
-	public Provider getProvider() {
-		return Provider.CPASBIEN;
-	}
-
-	@Override
-	public String getFilter(Language language, Quality quality) {
-		StringBuilder filter = new StringBuilder();
-		if (language == Language.FR) {
-			FilterUtils.appendFilterAnd(filter, "FRENCH");
-		} else if (language == Language.VOSTFR) {
-			FilterUtils.appendFilterAnd(filter, "VOSTFR");
-		}
-		if (quality == Quality.SD) {
-			FilterUtils.appendFilterAnd(filter, "!720p");
-		} else if (quality == Quality.HD) {
-			FilterUtils.appendFilterAnd(filter, "720p");
-		}
-		return filter.toString();
-	}
-
-	@Override
-	public Feed getFeed(FeedSearch feedSearch) throws IOException {
-		if (feedSearch.show == null) {
+	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
+		if (betarssSearch.show == null) {
 			return getFeed();
 		}
-		String html = fetchHtml(feedSearch.show, feedSearch.season);
+		String html = fetchHtml(betarssSearch.show, betarssSearch.season);
 		List<FeedItem> feedItems = getFeedItems(html);
-		return FeedBuilder.start().withTitle(computeTitle(feedSearch)).withFeedItems(feedItems).get();
+		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
 	}
 
 	public Feed getFeed() throws IOException {
@@ -113,8 +89,8 @@ public class CpasbienSearchEngine implements ISearchEngine {
 		return showName + " " + ShowUtils.getFormattedShowSeason(season);
 	}
 
-	private String computeTitle(FeedSearch feedSearch) {
-		return upperCaseString(feedSearch.show) + " " + ShowUtils.getFormattedShowSeason(feedSearch.season);
+	private String computeTitle(BetarssSearch betarssSearch) {
+		return upperCaseString(betarssSearch.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.season);
 	}
 
 }

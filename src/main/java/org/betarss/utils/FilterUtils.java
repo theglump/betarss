@@ -2,7 +2,7 @@ package org.betarss.utils;
 
 public class FilterUtils {
 
-	public static String appendFilterAnd(String... conditions) {
+	public static String joinFilterAnd(String... conditions) {
 		StringBuilder result = new StringBuilder();
 		for (String condition : conditions) {
 			appendFilterAnd(result, condition);

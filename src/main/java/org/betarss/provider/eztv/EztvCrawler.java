@@ -1,9 +1,9 @@
-package org.betarss.provider;
+package org.betarss.provider.eztv;
 
+import static org.betarss.utils.BetarssUtils.doTry;
+import static org.betarss.utils.BetarssUtils.parseDefaultDate;
 import static org.betarss.utils.ShowUtils.getFormattedShowSeason;
 import static org.betarss.utils.ShowUtils.upperCaseString;
-import static org.betarss.utils.Utils.doTry;
-import static org.betarss.utils.Utils.parseDefaultDate;
 import static org.jsoup.Jsoup.connect;
 
 import java.io.IOException;
@@ -14,20 +14,18 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
-import org.betarss.domain.FeedSearch;
-import org.betarss.domain.Language;
-import org.betarss.domain.Provider;
-import org.betarss.domain.Quality;
-import org.betarss.utils.Utils.Function;
+import org.betarss.provider.ICrawler;
+import org.betarss.utils.BetarssUtils.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EztvSearchEngine implements ISearchEngine {
+public class EztvCrawler implements ICrawler {
 
 	private static final String SEARCH_URL = "https://eztv.ch/search/";
 
@@ -47,51 +45,36 @@ public class EztvSearchEngine implements ISearchEngine {
 	private EztvCache eztvCache;
 
 	@Override
-	public Provider getProvider() {
-		return Provider.EZTV;
+	public Feed getFeed(final BetarssSearch betarssSearch) throws IOException {
+		return betarssSearch.show != null ? getShowSeasonFeed(betarssSearch) : getLastItemsFeed(betarssSearch);
 	}
 
-	@Override
-	public String getFilter(Language language, Quality quality) {
-		StringBuilder filter = new StringBuilder();
-		if (quality == Quality.SD) {
-			filter.append("");
-		} else if (quality == Quality.HD) {
-			filter.append("");
-		}
-		return filter.toString();
-	}
-
-	@Override
-	public Feed getFeed(final FeedSearch feedSearch) throws IOException {
-		return feedSearch.show != null ? getShowSeasonFeed(feedSearch) : getLastItemsFeed(feedSearch);
-	}
-
-	private Feed getShowSeasonFeed(FeedSearch feedSearch) throws IOException {
-		String html = fetchHtml(feedSearch);
-		Pattern entryPattern = getEntryPattern(getSearchLabel(feedSearch), feedSearch.magnet);
+	private Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
+		String html = fetchHtml(betarssSearch);
+		Pattern entryPattern = getEntryPattern(getSearchLabel(betarssSearch), betarssSearch.magnet);
 		List<FeedItem> feedItems = getFeed(html, entryPattern);
-		String feedTitle = computeTitle(feedSearch);
+		String feedTitle = computeTitle(betarssSearch);
 		return FeedBuilder.start(). //
 				withTitle(feedTitle). //
 				withFeedItems(feedItems).get();
 	}
 
-	public Feed getLastItemsFeed(FeedSearch feedSearch) throws IOException {
-		String html = fetchHtml(feedSearch);
-		List<FeedItem> feedItems = getFeed(html, getEntryPattern(null, feedSearch.magnet));
+	public Feed getLastItemsFeed(BetarssSearch betarssSearch) throws IOException {
+		String html = fetchHtml(betarssSearch);
+		List<FeedItem> feedItems = getFeed(html, getEntryPattern(null, betarssSearch.magnet));
 		return FeedBuilder.start(). //
 				withTitle("EZTV feed"). //
 				withFeedItems(feedItems).get();
 	}
 
-	private String fetchHtml(final FeedSearch feedSearch) {
+	private String fetchHtml(final BetarssSearch betarssSearch) {
 		return doTry(FETCH_HTML_RETRY_NUMBER, new Function<String>() {
 
 			@Override
 			public String doCall() throws Exception {
-				if (feedSearch.show != null) {
-					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(feedSearch.show).toString()).post().html();
+				if (betarssSearch.show != null) {
+					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(betarssSearch.show).toString()).post()
+							.html();
 				}
 				return connect(SEARCH_URL).userAgent("Mozilla/5.0").post().html();
 
@@ -130,8 +113,8 @@ public class EztvSearchEngine implements ISearchEngine {
 		return eztvCache.get(showName.toLowerCase());
 	}
 
-	private String computeTitle(FeedSearch feedSearch) {
-		return upperCaseString(feedSearch.show) + " " + getFormattedShowSeason(feedSearch.season);
+	private String computeTitle(BetarssSearch betarssSearch) {
+		return upperCaseString(betarssSearch.show) + " " + getFormattedShowSeason(betarssSearch.season);
 	}
 
 	private static Pattern getEntryPattern(String label, boolean magnet) {
@@ -146,7 +129,8 @@ public class EztvSearchEngine implements ISearchEngine {
 		return Pattern.compile(PATTERN_1 + label + PATTERN_2_MAGNET, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 	}
 
-	private String getSearchLabel(FeedSearch feedSearch) {
-		return feedSearch.show + " " + getFormattedShowSeason(feedSearch.season);
+	private String getSearchLabel(BetarssSearch betarssSearch) {
+		return betarssSearch.show + " " + getFormattedShowSeason(betarssSearch.season);
 	}
+
 }

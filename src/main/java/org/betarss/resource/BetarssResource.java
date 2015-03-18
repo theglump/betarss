@@ -1,14 +1,16 @@
 package org.betarss.resource;
 
-import org.betarss.core.business.IFeedService;
+import org.betarss.domain.BetarssSearch;
+import org.betarss.domain.BetaseriesSearch;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedSearch;
 import org.betarss.domain.Language;
 import org.betarss.domain.Provider;
 import org.betarss.domain.Quality;
 import org.betarss.feed.IRssProducer;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.utils.Utils;
+import org.betarss.search.BetarssService;
+import org.betarss.search.BetaseriesService;
+import org.betarss.utils.SSLCertificateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,14 +21,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+//TODO : P1 - classe ProviderDictionnary
+//TODO : P3 - donner la possibilité de récupérér la dernière log d'une recherche
 public class BetarssResource {
 
-	static {
-		Class u = Utils.class;
-	}
+	@Autowired
+	private BetaseriesService betaseriesService;
 
 	@Autowired
-	private IFeedService feedService;
+	private BetarssService betarssService;
 
 	@Autowired
 	private IRssProducer jaxbRssProducer;
@@ -34,6 +37,7 @@ public class BetarssResource {
 	@Autowired
 	private ConfigurationService configurationService;
 
+	//TODO : P2 - possibilité de ne pas préciser de saison pouvoir filtrer sur la saison et filtre à partir d'une saison (ex: à partir de 3 = !S01^!S02^!S3) 
 	@RequestMapping(value = "feed", method = RequestMethod.GET)
 	public HttpEntity<byte[]> feed( //
 			@RequestParam(required = true) String show, //
@@ -45,7 +49,8 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet) throws Exception {
 
-		FeedSearch search = new FeedSearch();
+		//TODO : P2 - builder pour feed search avec validation
+		BetarssSearch search = new BetarssSearch();
 		search.show = show;
 		search.season = season;
 		if (provider != null) {
@@ -60,7 +65,7 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		Feed feed = feedService.getFeed(search);
+		Feed feed = betarssService.search(search);
 		return httpEntity(produceRss(feed));
 	}
 
@@ -85,7 +90,8 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet) throws Exception {
 
-		FeedSearch search = new FeedSearch();
+		BetaseriesSearch search = new BetaseriesSearch();
+		search.login = login;
 		if (provider != null) {
 			search.providers.add(Provider.parse(provider));
 		} else {
@@ -98,7 +104,7 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		Feed feed = feedService.getFeed(search);
+		Feed feed = betaseriesService.getFeed(search);
 		return httpEntity(produceRss(feed));
 	}
 
@@ -118,12 +124,9 @@ public class BetarssResource {
 	private String produceRss(Feed feed) throws Exception {
 		return jaxbRssProducer.produceRSS2(feed);
 	}
-	//	@RequestMapping(value = "torrent", method = RequestMethod.GET)
-	//	@ResponseBody
-	//	public void torrent(@RequestParam String location, HttpServletResponse response) throws IOException {
-	//		String content = Jsoup.connect(location).ignoreContentType(true).get().body().text();
-	//		response.setHeader("Content-Disposition", " attachment; filename=" + location.hashCode() + ".torrent");
-	//		ByteStreams.copy(new StringInputStream(content), response.getOutputStream());
-	//		response.flushBuffer();
-	//	}
+
+	static {
+		SSLCertificateUtils.avoidHttpsErrors();
+	}
+
 }

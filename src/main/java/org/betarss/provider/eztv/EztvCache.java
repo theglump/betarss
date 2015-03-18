@@ -1,11 +1,11 @@
-package org.betarss.provider;
+package org.betarss.provider.eztv;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.infrastructure.AbstractCache;
-import org.betarss.utils.Utils;
-import org.betarss.utils.Utils.Function;
+import org.betarss.utils.BetarssUtils;
+import org.betarss.utils.BetarssUtils.Function;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +16,18 @@ public class EztvCache extends AbstractCache<String, Integer> {
 
 	@Override
 	protected void init() {
-		String html = Utils.doTry(10, new Function<String>() {
+		String html = null;
+		try {
+			html = BetarssUtils.doTry(10, new Function<String>() {
 
-			@Override
-			public String doCall() throws Exception {
-				return Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
-			}
+				@Override
+				public String doCall() throws Exception {
+					return Jsoup.connect("http://eztv.ch").userAgent("Mozilla").get().html();
+				}
 
-		});
+			});
+		} catch (Exception e) { // die silently as it occurs often
+		}
 
 		Matcher m = OPTION_VALUE_PATTERN.matcher(html);
 		while (m.find()) {
@@ -32,4 +36,10 @@ public class EztvCache extends AbstractCache<String, Integer> {
 			put(showName, id);
 		}
 	}
+
+	@Override
+	protected boolean lazy() {
+		return true;
+	}
+
 }

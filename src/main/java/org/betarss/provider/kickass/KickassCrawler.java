@@ -1,32 +1,32 @@
-package org.betarss.provider;
+package org.betarss.provider.kickass;
 
+import static org.betarss.utils.BetarssUtils.multiThreadCalls;
 import static org.betarss.utils.ShowUtils.upperCaseString;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
 import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
 import org.betarss.domain.FeedItemBuilder;
-import org.betarss.domain.FeedSearch;
-import org.betarss.domain.Language;
-import org.betarss.domain.Provider;
-import org.betarss.domain.Quality;
+import org.betarss.provider.ICrawler;
+import org.betarss.utils.BetarssUtils;
+import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.ShowUtils;
-import org.betarss.utils.Utils;
-import org.betarss.utils.Utils.Function;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
 @Service
-public class KickassSearchEngine implements ISearchEngine {
+public class KickassCrawler implements ICrawler {
 
 	private static final Pattern ITEMS_PATTERN = Pattern.compile("((<tr class=\"(odd|even)\"((?!red lasttd center).)*))", Pattern.DOTALL
 			| Pattern.CASE_INSENSITIVE);
@@ -43,58 +43,48 @@ public class KickassSearchEngine implements ISearchEngine {
 	private static final int RAW_TITLE = 9;
 
 	@Override
-	public Provider getProvider() {
-		return Provider.KICKASS;
-	}
-
-	@Override
-	public String getFilter(Language language, Quality quality) {
-		StringBuilder filter = new StringBuilder();
-		if (quality == Quality.SD) {
-			filter.append("!720p");
-		} else if (quality == Quality.HD) {
-			filter.append("720p");
+	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
+		if (betarssSearch.show == null) {
+			return getLastEpisodes(betarssSearch);
 		}
-		return filter.toString();
+		return getShowSeasonFeed(betarssSearch);
 	}
 
-	@Override
-	public Feed getFeed(FeedSearch feedSearch) throws IOException {
-		if (feedSearch.show == null) {
-			return getLastEpisodes(feedSearch);
-		}
-		return getShowSeasonFeed(feedSearch);
+	public Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
+		String html = fetchHtml(betarssSearch.show, betarssSearch.season);
+		List<FeedItem> feedItems = getFeedItems(html, betarssSearch.magnet, betarssSearch.date);
+		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
 	}
 
-	public Feed getShowSeasonFeed(FeedSearch feedSearch) throws IOException {
-		String html = fetchHtml(feedSearch.show, feedSearch.season);
-		List<FeedItem> feedItems = getFeedItems(html, feedSearch.magnet, feedSearch.date);
-		return FeedBuilder.start().withTitle(computeTitle(feedSearch)).withFeedItems(feedItems).get();
-	}
-
-	public Feed getLastEpisodes(FeedSearch feedSearch) throws IOException {
-		List<FeedItem> feedItems = getFeedItems(fetchHtml(), feedSearch.magnet, feedSearch.date);
+	public Feed getLastEpisodes(BetarssSearch betarssSearch) throws IOException {
+		List<FeedItem> feedItems = getFeedItems(fetchHtml(), betarssSearch.magnet, betarssSearch.date);
 		return FeedBuilder.start().withFeedItems(feedItems).get();
 	}
 
 	private List<FeedItem> getFeedItems(String html, final boolean magnet, final boolean date) throws IOException {
-		List<Function<FeedItem>> functions = Lists.newArrayList();
+		final List<FeedItem> feedItems = new CopyOnWriteArrayList<FeedItem>();
+		if (html == null) {
+			return feedItems;
+		}
+		List<Procedure> procedures = Lists.newArrayList();
 		Matcher m = ITEMS_PATTERN.matcher(html);
 		while (m.find()) {
 			final String itemHtml = m.group(0);
-			functions.add(new Function<FeedItem>() {
+			procedures.add(new Procedure() {
 
 				@Override
-				public FeedItem doCall() throws Exception {
-					return createFeed(itemHtml, magnet, date);
+				public void doCall() throws Exception {
+					FeedItem createFeedItem = createFeedItem(itemHtml, magnet, date);
+					feedItems.add(createFeedItem);
 				}
 
 			});
 		}
-		return Utils.multiThreadCalls(functions, 120);
+		multiThreadCalls(procedures, 120);
+		return feedItems;
 	}
 
-	private FeedItem createFeed(String itemHtml, boolean magnet, boolean date) throws IOException {
+	private FeedItem createFeedItem(String itemHtml, boolean magnet, boolean date) throws IOException {
 		Matcher matcher = ITEM_PATTERN.matcher(itemHtml);
 		if (matcher.find()) {
 			String title = stripHtml(matcher.group(RAW_TITLE));
@@ -113,18 +103,28 @@ public class KickassSearchEngine implements ISearchEngine {
 		String html = Jsoup.connect("https://kickass.to" + torrentPageUrl).userAgent("Mozilla/5.0").get().html();
 		Matcher dateMatcher = DATE_PATTERN.matcher(html);
 		if (dateMatcher.find()) {
-			return Utils.parseDefaultDate(dateMatcher.group(1), "MMM dd, yyyy", Locale.US);
+			return BetarssUtils.parseDefaultDate(dateMatcher.group(1), "MMM dd, yyyy", Locale.US);
 		}
 		return null;
 	}
 
 	private String fetchHtml() throws IOException {
-		return Jsoup.connect("https://kickass.to/tv/").userAgent("Mozilla/5.0").get().html();
+		String html = "";
+		try {
+			html = Jsoup.connect("https://kickass.to/tv/").userAgent("Mozilla/5.0").get().html();
+		} catch (Exception e) {
+		}
+		return html;
 	}
 
 	private String fetchHtml(String showName, int season) throws IOException {
-		String searchString = getSearchString(showName, season);
-		return Jsoup.connect("https://kickass.to/usearch/").userAgent("Mozilla/5.0").data("q", searchString).post().html();
+		String html = "";
+		try {
+			String searchString = getSearchString(showName, season);
+			html = Jsoup.connect("https://kickass.to/usearch/").userAgent("Mozilla/5.0").data("q", searchString).post().html();
+		} catch (Exception e) {
+		}
+		return html;
 	}
 
 	private String getSearchString(String showName, int season) {
@@ -135,8 +135,8 @@ public class KickassSearchEngine implements ISearchEngine {
 		return title.replaceAll("<strong class=\"red\">", "").replace("</strong>", "");
 	}
 
-	private String computeTitle(FeedSearch feedSearch) {
-		return upperCaseString(feedSearch.show) + " " + ShowUtils.getFormattedShowSeason(feedSearch.season);
+	private String computeTitle(BetarssSearch betarssSearch) {
+		return upperCaseString(betarssSearch.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.season);
 	}
 
 }

@@ -14,7 +14,7 @@ import org.josql.QueryResults;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FeedFilter {
+public class FeedFilterer {
 
 	private static final Pattern expressionPattern = Pattern.compile("[\\!\\d\\w_\\- ]+", Pattern.CASE_INSENSITIVE);
 
