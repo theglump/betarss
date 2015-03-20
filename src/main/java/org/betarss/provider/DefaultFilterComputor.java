@@ -11,9 +11,9 @@ public class DefaultFilterComputor implements IFilterComputor {
 	public String getFilter(Language language, Quality quality) {
 		StringBuilder filter = new StringBuilder();
 		if (quality == Quality.SD) {
-			filter.append("");
+			filter.append("!720p");
 		} else if (quality == Quality.HD) {
-			filter.append("");
+			filter.append("720p");
 		}
 		return filter.toString();
 
