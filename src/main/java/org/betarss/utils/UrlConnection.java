@@ -1,4 +1,4 @@
-package org.betarss.batch;
+package org.betarss.utils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -13,7 +13,7 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class WawaHttpUrlConnection {
+public class UrlConnection {
 
 	private static final String USER_AGENT = "Mozilla/5.0";
 	private static final String POST_URL = "http://forum.wawa-mania.ec/login.php?action=in";
@@ -23,7 +23,7 @@ public class WawaHttpUrlConnection {
 	private boolean logged = false;
 	private List<String> cookies = Lists.newArrayList();
 
-	public WawaHttpUrlConnection() {
+	public UrlConnection() {
 		CookieHandler.setDefault(new CookieManager());
 	}
 

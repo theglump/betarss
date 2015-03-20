@@ -1,12 +1,15 @@
-package org.betarss.domain;
+package org.betarss.domain.builder;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.betarss.domain.Feed;
+import org.betarss.domain.FeedItem;
+
 public class FeedBuilder {
 
-	protected String title;
-	protected List<FeedItem> feedItems = new ArrayList<FeedItem>();
+	public String title;
+	public List<FeedItem> feedItems = new ArrayList<FeedItem>();
 
 	public static FeedBuilder start() {
 		return new FeedBuilder();

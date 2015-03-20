@@ -1,7 +1,5 @@
 package org.betarss.provider.cpasbien;
 
-import static org.betarss.utils.ShowUtils.upperCaseString;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,9 +9,9 @@ import java.util.regex.Pattern;
 
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
-import org.betarss.domain.FeedItemBuilder;
+import org.betarss.domain.builder.FeedBuilder;
+import org.betarss.domain.builder.FeedItemBuilder;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
@@ -35,10 +33,10 @@ public class CpasbienCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
-		if (betarssSearch.show == null) {
+		if (betarssSearch.showEpisode.show == null) {
 			return getFeed();
 		}
-		String html = fetchHtml(betarssSearch.show, betarssSearch.season);
+		String html = fetchHtml(betarssSearch.showEpisode.show, betarssSearch.showEpisode.season);
 		List<FeedItem> feedItems = getFeedItems(html);
 		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
 	}
@@ -68,7 +66,7 @@ public class CpasbienCrawler implements ICrawler {
 		return Jsoup.connect(LAST_ITEMS_URL).userAgent("Mozilla").get().html();
 	}
 
-	private String fetchHtml(String showName, int season) throws IOException {
+	private String fetchHtml(String showName, Integer season) throws IOException {
 		String searchString = getSearchString(showName, season);
 		return Jsoup.connect(SEARCH_URL).userAgent("Mozilla").data("champ_recherche", searchString).post().html();
 	}
@@ -85,12 +83,12 @@ public class CpasbienCrawler implements ICrawler {
 		return "http://www.cpasbien.pw/telechargement/" + torrentName + ".torrent";
 	}
 
-	private String getSearchString(String showName, int season) {
+	private String getSearchString(String showName, Integer season) {
 		return showName + " " + ShowUtils.getFormattedShowSeason(season);
 	}
 
 	private String computeTitle(BetarssSearch betarssSearch) {
-		return upperCaseString(betarssSearch.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.season);
+		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
 	}
 
 }

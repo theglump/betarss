@@ -8,11 +8,11 @@ public class ShowUtils {
 		return Pattern.matches(".*S[0-9]{2,2}E[0-9]{2,2}\\-[0-9]{2,2}.*", label);
 	}
 
-	public static String getFormattedShowEpisode(int season, int episode) {
+	public static String getFormattedShowEpisode(Integer season, Integer episode) {
 		return getFormattedShowSeason(season) + "E" + (episode < 10 ? "0" + episode : episode);
 	}
 
-	public static String getFormattedShowSeason(int season) {
+	public static String getFormattedShowSeason(Integer season) {
 		return "S" + (season < 10 ? "0" + season : season);
 	}
 

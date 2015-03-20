@@ -9,31 +9,30 @@ import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.betarss.domain.Quality;
 import org.betarss.exception.FeedFilterException;
-import org.betarss.feed.FeedFilterer;
 
 // TODO : to prototype ?
 public class FeedSearcher {
 
 	private FeedFilterer feedFilterer;
 
-	private ICrawler crawler;
+	private ICrawler iCrawler;
 
-	private IFilterComputor filterComputor;
+	private IFilterComputor iFilterComputor;
 
-	public FeedSearcher(FeedFilterer feedFilterer, ICrawler crawler, IFilterComputor filterComputor) {
+	public FeedSearcher(FeedFilterer feedFilterer, ICrawler iCrawler, IFilterComputor iFilterComputor) {
 		this.feedFilterer = feedFilterer;
-		this.crawler = crawler;
-		this.filterComputor = filterComputor;
+		this.iCrawler = iCrawler;
+		this.iFilterComputor = iFilterComputor;
 	}
 
 	public Feed search(BetarssSearch search) throws IOException, FeedFilterException {
-		Feed feed = crawler.getFeed(search);
+		Feed feed = iCrawler.getFeed(search);
 		String filter = computeFilter(search);
 		return feedFilterer.filter(feed, filter);
 	}
 
 	private String computeFilter(BetarssSearch search) {
-		String searchFilter = filterComputor.getFilter(getLanguage(search), getQuality(search));
+		String searchFilter = iFilterComputor.getFilter(getLanguage(search), getQuality(search));
 		return joinFilterAnd(searchFilter, search.filter);
 	}
 

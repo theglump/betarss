@@ -1,7 +1,6 @@
 package org.betarss.provider;
 
 import org.betarss.domain.Provider;
-import org.betarss.feed.FeedFilterer;
 import org.betarss.provider.cpasbien.CpasbienCrawler;
 import org.betarss.provider.cpasbien.CpasbienFilterComputor;
 import org.betarss.provider.eztv.EztvCrawler;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FeedSearcherFactory {
+public class FeedSearcherProvider {
 
 	@Autowired
 	private FeedFilterer feedFilterer;

@@ -1,14 +1,16 @@
-package org.betarss.domain;
+package org.betarss.domain.builder;
 
 import java.util.Date;
 
+import org.betarss.domain.FeedItem;
+
 public class FeedItemBuilder {
 
-	protected String title;
-	protected String description;
-	protected String location;
-	protected String filename;
-	protected Date date;
+	public String title;
+	public String description;
+	public String location;
+	public String filename;
+	public Date date;
 
 	public static FeedItemBuilder start() {
 		return new FeedItemBuilder();

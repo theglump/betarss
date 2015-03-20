@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-public abstract class AbstractSearch {
+public abstract class BaseSearch {
 	public List<Language> languages = Lists.newArrayList();
 	public List<Provider> providers = Lists.newArrayList();
 	public List<Quality> qualities = Lists.newArrayList();
@@ -12,16 +12,16 @@ public abstract class AbstractSearch {
 	public Boolean magnet;
 	public Boolean date;
 
-	public AbstractSearch() {
+	public BaseSearch() {
 
 	}
 
-	public AbstractSearch(AbstractSearch search) {
-		languages = search.languages;
-		providers = search.providers;
-		qualities = search.qualities;
-		filter = search.filter;
-		magnet = search.magnet;
-		date = search.date;
+	public BaseSearch(BaseSearch baseSearch) {
+		languages = baseSearch.languages;
+		providers = baseSearch.providers;
+		qualities = baseSearch.qualities;
+		filter = baseSearch.filter;
+		magnet = baseSearch.magnet;
+		date = baseSearch.date;
 	}
 }

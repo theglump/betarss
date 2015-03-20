@@ -1,7 +1,6 @@
 package org.betarss.provider.kickass;
 
 import static org.betarss.utils.BetarssUtils.multiThreadCalls;
-import static org.betarss.utils.ShowUtils.upperCaseString;
 
 import java.io.IOException;
 import java.util.Date;
@@ -13,9 +12,9 @@ import java.util.regex.Pattern;
 
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
-import org.betarss.domain.FeedItemBuilder;
+import org.betarss.domain.builder.FeedBuilder;
+import org.betarss.domain.builder.FeedItemBuilder;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
@@ -44,14 +43,14 @@ public class KickassCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
-		if (betarssSearch.show == null) {
+		if (betarssSearch.showEpisode.show == null) {
 			return getLastEpisodes(betarssSearch);
 		}
 		return getShowSeasonFeed(betarssSearch);
 	}
 
 	public Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
-		String html = fetchHtml(betarssSearch.show, betarssSearch.season);
+		String html = fetchHtml(betarssSearch.showEpisode.show, betarssSearch.showEpisode.season);
 		List<FeedItem> feedItems = getFeedItems(html, betarssSearch.magnet, betarssSearch.date);
 		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
 	}
@@ -63,9 +62,6 @@ public class KickassCrawler implements ICrawler {
 
 	private List<FeedItem> getFeedItems(String html, final boolean magnet, final boolean date) throws IOException {
 		final List<FeedItem> feedItems = new CopyOnWriteArrayList<FeedItem>();
-		if (html == null) {
-			return feedItems;
-		}
 		List<Procedure> procedures = Lists.newArrayList();
 		Matcher m = ITEMS_PATTERN.matcher(html);
 		while (m.find()) {
@@ -117,7 +113,7 @@ public class KickassCrawler implements ICrawler {
 		return html;
 	}
 
-	private String fetchHtml(String showName, int season) throws IOException {
+	private String fetchHtml(String showName, Integer season) throws IOException {
 		String html = "";
 		try {
 			String searchString = getSearchString(showName, season);
@@ -127,7 +123,7 @@ public class KickassCrawler implements ICrawler {
 		return html;
 	}
 
-	private String getSearchString(String showName, int season) {
+	private String getSearchString(String showName, Integer season) {
 		return showName + " " + ShowUtils.getFormattedShowSeason(season) + " EZTV";
 	}
 
@@ -136,7 +132,7 @@ public class KickassCrawler implements ICrawler {
 	}
 
 	private String computeTitle(BetarssSearch betarssSearch) {
-		return upperCaseString(betarssSearch.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.season);
+		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
 	}
 
 }

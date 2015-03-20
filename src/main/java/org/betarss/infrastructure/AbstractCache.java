@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public abstract class AbstractCache<K, V> implements ICache<K, V> {
+public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
 	Map<K, V> cache;
 

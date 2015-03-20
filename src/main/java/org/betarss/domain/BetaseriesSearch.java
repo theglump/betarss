@@ -1,14 +1,14 @@
 package org.betarss.domain;
 
-public class BetaseriesSearch extends AbstractSearch {
+public class BetaseriesSearch extends BaseSearch {
 	public String login;
 
 	public BetaseriesSearch() {
 		super();
 	}
 
-	public BetaseriesSearch(AbstractSearch search) {
-		super(search);
+	public BetaseriesSearch(BaseSearch baseSearch) {
+		super(baseSearch);
 	}
 
 }

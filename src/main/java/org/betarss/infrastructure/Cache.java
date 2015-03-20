@@ -1,6 +1,6 @@
 package org.betarss.infrastructure;
 
-public interface ICache<K, V> {
+public interface Cache<K, V> {
 
 	V get(K key);
 

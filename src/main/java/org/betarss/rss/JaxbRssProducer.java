@@ -1,4 +1,4 @@
-package org.betarss.feed;
+package org.betarss.rss;
 
 import java.io.StringWriter;
 
@@ -12,7 +12,7 @@ import org.betarss.domain.Feed;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JaxbRssProducer implements IRssProducer {
+public class JaxbRssProducer implements RssProducer {
 
 	public String produceRSS2(Feed feed) throws Exception {
 		JAXBContext context = JAXBContext.newInstance(Rss2.class);

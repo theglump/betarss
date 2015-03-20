@@ -1,4 +1,4 @@
-package org.betarss.search;
+package org.betarss.app;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,12 +9,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.betarss.domain.BaseSearch;
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
+import org.betarss.domain.Language;
 import org.betarss.domain.FeedItem;
+import org.betarss.domain.Provider;
+import org.betarss.domain.builder.FeedBuilder;
 import org.betarss.exception.FeedFilterException;
+import org.betarss.infrastructure.ConfigurationService;
+import org.betarss.provider.FeedSearcher;
+import org.betarss.provider.FeedSearcherProvider;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.jsoup.Jsoup;
@@ -33,10 +39,14 @@ public class BetaseriesService {
 	private static final Pattern SEASON_PATTERN = Pattern.compile(".*S0?(\\d+).*");
 
 	@Autowired
-	private BetarssService betarssService;
+	private FeedSearcherProvider feedSearcherProvider;
+
+	@Autowired
+	private ConfigurationService configurationService;
 
 	public Feed getFeed(final BetaseriesSearch search) throws IOException, FeedFilterException {
 		final List<FeedItem> feedItems = new CopyOnWriteArrayList<FeedItem>();
+		final FeedSearcher feedSearcher = getFeedSearcher(search);
 
 		SetMultimap<String, String> titlesBySeason = HashMultimap.create();
 		for (String title : getItemTitles(search.login)) {
@@ -55,9 +65,9 @@ public class BetaseriesService {
 					String first = titles.iterator().next();
 					String showName = first.substring(0, first.length() - 7);
 					BetarssSearch betarssSearch = new BetarssSearch(search);
-					betarssSearch.show = showName;
-					betarssSearch.season = getSeason(first);
-					Feed feed = betarssService.search(betarssSearch);
+					betarssSearch.showEpisode.show = showName;
+					betarssSearch.showEpisode.season = getSeason(first);
+					Feed feed = feedSearcher.search(betarssSearch);
 					for (String title : titles) {
 						for (FeedItem feedItem : feed.getFeedItems()) {
 							if (feedItem.getTitle().startsWith((title))) {
@@ -66,6 +76,7 @@ public class BetaseriesService {
 						}
 					}
 				}
+
 			});
 		}
 		BetarssUtils.multiThreadCalls(procedures, 120);
@@ -87,5 +98,21 @@ public class BetaseriesService {
 	private int getSeason(String str) {
 		Matcher m = SEASON_PATTERN.matcher(str);
 		return m.find() ? Integer.parseInt(m.group(1)) : 0;
+	}
+
+	private FeedSearcher getFeedSearcher(BaseSearch betarssSearch) {
+		Provider provider = getProvider(betarssSearch);
+		return feedSearcherProvider.get(provider);
+	}
+
+	private Provider getProvider(BaseSearch baseSearch) {
+		if (baseSearch.languages.size() > 0) {
+			return configurationService.getProviders().get(getLanguage(baseSearch)).get(0);
+		}
+		return baseSearch.providers.get(0);
+	}
+
+	private Language getLanguage(BaseSearch parameter) {
+		return parameter.languages.size() > 0 ? parameter.languages.get(0) : null;
 	}
 }

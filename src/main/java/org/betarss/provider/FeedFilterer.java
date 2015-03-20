@@ -1,12 +1,12 @@
-package org.betarss.feed;
+package org.betarss.provider;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
+import org.betarss.domain.builder.FeedBuilder;
 import org.betarss.exception.FeedFilterException;
 import org.josql.Query;
 import org.josql.QueryExecutionException;

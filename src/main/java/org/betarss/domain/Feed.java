@@ -5,6 +5,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.betarss.domain.builder.FeedBuilder;
+
 import com.google.common.collect.ImmutableList;
 
 @XmlRootElement(name = "channel")
@@ -28,9 +30,6 @@ public class Feed {
 		return title;
 	}
 
-	//	  // XmLElementWrapper generates a wrapper element around XML representation
-	//	  @XmlElementWrapper(name = "bookList")
-	// XmlElement sets the name of the entities
 	@XmlElement(name = "item")
 	public List<FeedItem> getFeedItems() {
 		return ImmutableList.copyOf(feedItems);

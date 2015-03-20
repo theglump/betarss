@@ -2,8 +2,6 @@ package org.betarss.provider.eztv;
 
 import static org.betarss.utils.BetarssUtils.doTry;
 import static org.betarss.utils.BetarssUtils.parseDefaultDate;
-import static org.betarss.utils.ShowUtils.getFormattedShowSeason;
-import static org.betarss.utils.ShowUtils.upperCaseString;
 import static org.jsoup.Jsoup.connect;
 
 import java.io.IOException;
@@ -16,11 +14,12 @@ import java.util.regex.Pattern;
 
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.Feed;
-import org.betarss.domain.FeedBuilder;
 import org.betarss.domain.FeedItem;
-import org.betarss.domain.FeedItemBuilder;
+import org.betarss.domain.builder.FeedBuilder;
+import org.betarss.domain.builder.FeedItemBuilder;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.BetarssUtils.Function;
+import org.betarss.utils.ShowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ public class EztvCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(final BetarssSearch betarssSearch) throws IOException {
-		return betarssSearch.show != null ? getShowSeasonFeed(betarssSearch) : getLastItemsFeed(betarssSearch);
+		return betarssSearch.showEpisode.show != null ? getShowSeasonFeed(betarssSearch) : getLastItemsFeed(betarssSearch);
 	}
 
 	private Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
@@ -72,9 +71,9 @@ public class EztvCrawler implements ICrawler {
 
 			@Override
 			public String doCall() throws Exception {
-				if (betarssSearch.show != null) {
-					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(betarssSearch.show).toString()).post()
-							.html();
+				if (betarssSearch.showEpisode.show != null) {
+					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(betarssSearch.showEpisode.show).toString())
+							.post().html();
 				}
 				return connect(SEARCH_URL).userAgent("Mozilla/5.0").post().html();
 
@@ -114,7 +113,7 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String computeTitle(BetarssSearch betarssSearch) {
-		return upperCaseString(betarssSearch.show) + " " + getFormattedShowSeason(betarssSearch.season);
+		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
 	}
 
 	private static Pattern getEntryPattern(String label, boolean magnet) {
@@ -130,7 +129,7 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String getSearchLabel(BetarssSearch betarssSearch) {
-		return betarssSearch.show + " " + getFormattedShowSeason(betarssSearch.season);
+		return betarssSearch.showEpisode.show + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
 	}
 
 }

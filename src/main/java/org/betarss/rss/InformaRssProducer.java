@@ -1,4 +1,4 @@
-package org.betarss.feed;
+package org.betarss.rss;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -16,7 +16,7 @@ import de.nava.informa.exporters.RSS_2_0_Exporter;
 import de.nava.informa.impl.basic.ChannelBuilder;
 
 @Service
-public class InformaRssProducer implements IRssProducer {
+public class InformaRssProducer implements RssProducer {
 
 	public String produceRSS2(Feed feed) throws IOException {
 		ChannelBuilder channelBuilder = new ChannelBuilder();
