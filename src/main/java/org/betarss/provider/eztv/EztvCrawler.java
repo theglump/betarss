@@ -45,25 +45,13 @@ public class EztvCrawler implements ICrawler {
 
 	@Override
 	public Feed getFeed(final BetarssSearch betarssSearch) throws IOException {
-		return betarssSearch.showEpisode.show != null ? getShowSeasonFeed(betarssSearch) : getLastItemsFeed(betarssSearch);
-	}
-
-	private Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
-		String html = fetchHtml(betarssSearch);
-		Pattern entryPattern = getEntryPattern(getSearchLabel(betarssSearch), betarssSearch.magnet);
-		List<FeedItem> feedItems = getFeed(html, entryPattern);
-		String feedTitle = computeTitle(betarssSearch);
-		return FeedBuilder.start(). //
-				withTitle(feedTitle). //
-				withFeedItems(feedItems).get();
-	}
-
-	public Feed getLastItemsFeed(BetarssSearch betarssSearch) throws IOException {
-		String html = fetchHtml(betarssSearch);
-		List<FeedItem> feedItems = getFeed(html, getEntryPattern(null, betarssSearch.magnet));
-		return FeedBuilder.start(). //
-				withTitle("EZTV feed"). //
-				withFeedItems(feedItems).get();
+	String html = fetchHtml(betarssSearch);
+	Pattern entryPattern = getEntryPattern(getSearchLabel(betarssSearch), betarssSearch.magnet);
+	List<FeedItem> feedItems = getFeed(html, entryPattern);
+	return FeedBuilder.start(). //
+			withTitle(computeTitle(betarssSearch)). //
+			withFeedItems(feedItems).get();
+	
 	}
 
 	private String fetchHtml(final BetarssSearch betarssSearch) {
@@ -113,7 +101,14 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String computeTitle(BetarssSearch betarssSearch) {
-		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
+		if (betarssSearch.showEpisode.show != null) {
+			if (betarssSearch.showEpisode.season != null) {
+				return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
+			} else {
+				return ShowUtils.upperCaseString(betarssSearch.showEpisode.show);
+			}
+		}
+		return "EZTV feed";
 	}
 
 	private static Pattern getEntryPattern(String label, boolean magnet) {
@@ -129,7 +124,14 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String getSearchLabel(BetarssSearch betarssSearch) {
-		return betarssSearch.showEpisode.show + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
+		StringBuilder sb = new StringBuilder();
+		if (betarssSearch.showEpisode.show != null) {
+			sb.append(betarssSearch.showEpisode.show);
+			if (betarssSearch.showEpisode.season != null) {
+				sb.append(" " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season));
+			}
+		}
+		return sb.toString();
 	}
 
 }
