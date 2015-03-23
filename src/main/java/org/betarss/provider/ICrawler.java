@@ -1,11 +1,12 @@
 package org.betarss.provider;
 
 import java.io.IOException;
+import java.util.List;
 
-import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 
 public interface ICrawler {
-	Feed getFeed(BetarssSearch betarssSearch) throws IOException, FeedFilterException;
+	List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException;
 }

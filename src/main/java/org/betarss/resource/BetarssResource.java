@@ -1,16 +1,20 @@
 package org.betarss.resource;
 
+import java.util.List;
+
 import org.betarss.app.BetarssService;
 import org.betarss.app.BetaseriesService;
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
-import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.betarss.domain.Provider;
 import org.betarss.domain.Quality;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.rss.RssProducer;
 import org.betarss.utils.SSLCertificateUtils;
+import org.betarss.utils.ShowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -63,8 +67,8 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		Feed feed = betarssService.search(search);
-		return httpEntity(produceRss(feed));
+		List<Torrent<ShowEpisode>> torrents = betarssService.searchTorrents(search);
+		return httpEntity(produceRss(search, torrents));
 	}
 
 	@RequestMapping(value = "last", method = RequestMethod.GET)
@@ -102,8 +106,8 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		Feed feed = betaseriesService.getFeed(search);
-		return httpEntity(produceRss(feed));
+		List<Torrent<ShowEpisode>> torrents = betaseriesService.getTorrents(search);
+		return httpEntity(produceRss(search, torrents));
 	}
 
 	@RequestMapping(value = "search", method = RequestMethod.GET)
@@ -119,8 +123,20 @@ public class BetarssResource {
 		return new HttpEntity<byte[]>(xml.getBytes(), header);
 	}
 
-	private String produceRss(Feed feed) throws Exception {
-		return jaxbRssProducer.produceRSS2(feed);
+	private String produceRss(BetarssSearch search, List<Torrent<ShowEpisode>> torrents) throws Exception {
+		return jaxbRssProducer.produceRSS2(feedTitle(search), torrents, search.magnet);
+	}
+
+	private String produceRss(BetaseriesSearch search, List<Torrent<ShowEpisode>> torrents) throws Exception {
+		return jaxbRssProducer.produceRSS2(feedTitle(search), torrents, search.magnet);
+	}
+
+	private String feedTitle(BetarssSearch search) {
+		return ShowUtils.formatEpisodeUpperCase(search.showEpisode.show, search.showEpisode.season);
+	}
+
+	private String feedTitle(BetaseriesSearch search) {
+		return search.login + "@betaseries.com";
 	}
 
 	static {

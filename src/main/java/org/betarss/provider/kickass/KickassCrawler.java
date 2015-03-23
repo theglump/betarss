@@ -10,11 +10,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
-import org.betarss.domain.FeedItem;
-import org.betarss.domain.builder.FeedBuilder;
-import org.betarss.domain.builder.FeedItemBuilder;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
+import org.betarss.exception.FeedFilterException;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
@@ -42,26 +40,23 @@ public class KickassCrawler implements ICrawler {
 	private static final int RAW_TITLE = 9;
 
 	@Override
-	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
-		if (betarssSearch.showEpisode.show == null) {
-			return getLastEpisodes(betarssSearch);
+	public List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+		if (show == null) {
+			return crawlNewTorrents(show, season);
 		}
-		return getShowSeasonFeed(betarssSearch);
+		return crawlForSeason(show, season);
 	}
 
-	public Feed getShowSeasonFeed(BetarssSearch betarssSearch) throws IOException {
-		String html = fetchHtml(betarssSearch.showEpisode.show, betarssSearch.showEpisode.season);
-		List<FeedItem> feedItems = getFeedItems(html, betarssSearch.magnet, betarssSearch.date);
-		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
+	public List<Torrent<ShowEpisode>> crawlForSeason(String show, Integer season) throws IOException {
+		return getTorrents(fetchHtml(show, season));
 	}
 
-	public Feed getLastEpisodes(BetarssSearch betarssSearch) throws IOException {
-		List<FeedItem> feedItems = getFeedItems(fetchHtml(), betarssSearch.magnet, betarssSearch.date);
-		return FeedBuilder.start().withFeedItems(feedItems).get();
+	public List<Torrent<ShowEpisode>> crawlNewTorrents(String show, Integer season) throws IOException {
+		return getTorrents(fetchHtml());
 	}
 
-	private List<FeedItem> getFeedItems(String html, final boolean magnet, final boolean date) throws IOException {
-		final List<FeedItem> feedItems = new CopyOnWriteArrayList<FeedItem>();
+	private List<Torrent<ShowEpisode>> getTorrents(String html) throws IOException {
+		final List<Torrent<ShowEpisode>> feedItems = new CopyOnWriteArrayList<Torrent<ShowEpisode>>();
 		List<Procedure> procedures = Lists.newArrayList();
 		Matcher m = ITEMS_PATTERN.matcher(html);
 		while (m.find()) {
@@ -70,8 +65,8 @@ public class KickassCrawler implements ICrawler {
 
 				@Override
 				public void doCall() throws Exception {
-					FeedItem createFeedItem = createFeedItem(itemHtml, magnet, date);
-					feedItems.add(createFeedItem);
+					Torrent<ShowEpisode> torrent = createTorrent(itemHtml);
+					feedItems.add(torrent);
 				}
 
 			});
@@ -80,17 +75,15 @@ public class KickassCrawler implements ICrawler {
 		return feedItems;
 	}
 
-	private FeedItem createFeedItem(String itemHtml, boolean magnet, boolean date) throws IOException {
+	private Torrent<ShowEpisode> createTorrent(String itemHtml) throws IOException {
 		Matcher matcher = ITEM_PATTERN.matcher(itemHtml);
 		if (matcher.find()) {
-			String title = stripHtml(matcher.group(RAW_TITLE));
-			String location = magnet ? matcher.group(MAGNET) : matcher.group(TORRENT_LINK);
-			Date torrentDate = date ? getDate(matcher.group(PAGE_LINK)) : null;
-			return FeedItemBuilder.start(). //
-					withTitle(title). //
-					withLocation(location). //
-					withDescription(title). //
-					withDate(torrentDate).get();
+			Torrent<ShowEpisode> torrent = new Torrent<ShowEpisode>();
+			torrent.title = stripHtml(matcher.group(RAW_TITLE));
+			torrent.magnet = matcher.group(MAGNET);
+			torrent.url = matcher.group(TORRENT_LINK);
+			torrent.date = getDate(matcher.group(PAGE_LINK));
+			return torrent;
 		}
 		return null;
 	}
@@ -124,15 +117,11 @@ public class KickassCrawler implements ICrawler {
 	}
 
 	private String getSearchString(String showName, Integer season) {
-		return showName + " " + ShowUtils.getFormattedShowSeason(season) + " EZTV";
+		return showName + " " + ShowUtils.formatSeason(season) + " EZTV";
 	}
 
 	private String stripHtml(String title) {
 		return title.replaceAll("<strong class=\"red\">", "").replace("</strong>", "");
-	}
-
-	private String computeTitle(BetarssSearch betarssSearch) {
-		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
 	}
 
 }

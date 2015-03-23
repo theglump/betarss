@@ -1,11 +1,13 @@
 package org.betarss.app;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.betarss.domain.Provider;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.provider.FeedSearcherProvider;
@@ -21,8 +23,8 @@ public class BetarssService {
 	@Autowired
 	private FeedSearcherProvider feedSearcherProvider;
 
-	public Feed search(BetarssSearch search) throws IOException, FeedFilterException {
-		return feedSearcherProvider.get(getProvider(search)).search(search);
+	public List<Torrent<ShowEpisode>> searchTorrents(BetarssSearch search) throws IOException, FeedFilterException {
+		return feedSearcherProvider.get(getProvider(search)).doSearch(search);
 	}
 
 	private Provider getProvider(BetarssSearch search) {

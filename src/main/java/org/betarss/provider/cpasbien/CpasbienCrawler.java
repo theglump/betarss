@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
-import org.betarss.domain.FeedItem;
-import org.betarss.domain.builder.FeedBuilder;
-import org.betarss.domain.builder.FeedItemBuilder;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
+import org.betarss.exception.FeedFilterException;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
@@ -32,34 +30,35 @@ public class CpasbienCrawler implements ICrawler {
 	private static final int TITLE = 4;
 
 	@Override
-	public Feed getFeed(BetarssSearch betarssSearch) throws IOException {
-		if (betarssSearch.showEpisode.show == null) {
+	public List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+		if (show == null) {
 			return getFeed();
 		}
-		String html = fetchHtml(betarssSearch.showEpisode.show, betarssSearch.showEpisode.season);
-		List<FeedItem> feedItems = getFeedItems(html);
-		return FeedBuilder.start().withTitle(computeTitle(betarssSearch)).withFeedItems(feedItems).get();
+		String html = fetchHtml(show, season);
+		List<Torrent<ShowEpisode>> torrents = getFeedItems(html);
+		return torrents;
 	}
 
-	public Feed getFeed() throws IOException {
-		List<FeedItem> feedItems = getFeedItems(fetchHtml());
-		return FeedBuilder.start().withFeedItems(feedItems).get();
+	public List<Torrent<ShowEpisode>> getFeed() throws IOException {
+		return getFeedItems(fetchHtml());
 	}
 
-	private List<FeedItem> getFeedItems(String html) throws IOException {
-		List<FeedItem> feedItems = Lists.newArrayList();
+	private List<Torrent<ShowEpisode>> getFeedItems(String html) throws IOException {
+		List<Torrent<ShowEpisode>> torrents = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
 		while (m.find()) {
-			feedItems.add(createFeed(m));
+			torrents.add(createFeed(m));
 		}
-		return feedItems;
+		return torrents;
 	}
 
-	private FeedItem createFeed(Matcher m) {
-		return FeedItemBuilder.start().withTitle(m.group(TITLE)). //
-				withDescription(m.group(TITLE)). //
-				withLocation(getLocation(m.group(TORRENT_NAME))). //
-				withDate(parseDate(m.group(DATE))).get();
+	private Torrent<ShowEpisode> createFeed(Matcher m) {
+		Torrent<ShowEpisode> torrent = new Torrent<ShowEpisode>();
+		torrent.title = m.group(TITLE);
+		torrent.description = m.group(TITLE);
+		torrent.url = getLocation(m.group(TORRENT_NAME));
+		torrent.date = parseDate(m.group(DATE));
+		return torrent;
 	}
 
 	private String fetchHtml() throws IOException {
@@ -84,11 +83,7 @@ public class CpasbienCrawler implements ICrawler {
 	}
 
 	private String getSearchString(String showName, Integer season) {
-		return showName + " " + ShowUtils.getFormattedShowSeason(season);
-	}
-
-	private String computeTitle(BetarssSearch betarssSearch) {
-		return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
+		return showName + " " + ShowUtils.formatSeason(season);
 	}
 
 }

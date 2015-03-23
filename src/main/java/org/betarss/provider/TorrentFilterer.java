@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.Feed;
-import org.betarss.domain.FeedItem;
-import org.betarss.domain.builder.FeedBuilder;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.josql.Query;
 import org.josql.QueryExecutionException;
@@ -14,24 +13,23 @@ import org.josql.QueryResults;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FeedFilterer {
+public class TorrentFilterer {
 
 	private static final Pattern expressionPattern = Pattern.compile("[\\!\\d\\w_\\- ]+", Pattern.CASE_INSENSITIVE);
 
 	@SuppressWarnings("unchecked")
-	public Feed filter(Feed feed, String filter) throws FeedFilterException {
-		Feed result = null;
+	public List<Torrent<ShowEpisode>> filter(List<Torrent<ShowEpisode>> torrents, String filter) throws FeedFilterException {
+		List<Torrent<ShowEpisode>> result = null;
 
 		if (filter == null || filter.isEmpty()) {
-			return feed;
+			return torrents;
 		}
 
 		try {
 			Query q = new Query();
-			q.parse("SELECT * FROM org.betarss.domain.FeedItem WHERE " + getAsSql(filter));
-			QueryResults qr = q.execute(feed.getFeedItems());
-			List<FeedItem> res = qr.getResults();
-			result = FeedBuilder.start().withTitle(feed.getTitle()).withFeedItems(res).get();
+			q.parse("SELECT * FROM org.betarss.domain.Torrent WHERE " + getAsSql(filter));
+			QueryResults qr = q.execute(torrents);
+			result = qr.getResults();
 
 		} catch (org.josql.QueryParseException e) {
 			throw new FeedFilterException(e);

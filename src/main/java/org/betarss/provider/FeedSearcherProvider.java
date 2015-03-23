@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class FeedSearcherProvider {
 
 	@Autowired
-	private FeedFilterer feedFilterer;
+	private TorrentFilterer torrentFilterer;
 
 	@Autowired
 	private CpasbienCrawler cpasbienCrawler;
@@ -29,7 +29,7 @@ public class FeedSearcherProvider {
 	@Autowired
 	private DefaultFilterComputor defaultFilterComputor;
 
-	public FeedSearcher get(Provider provider) {
+	public TorrentSearcher get(Provider provider) {
 		switch (provider) {
 		case EZTV:
 			return createEztvFeedSearcher();
@@ -41,16 +41,16 @@ public class FeedSearcherProvider {
 		throw new UnsupportedOperationException("Provider " + provider + " is not supported");
 	}
 
-	private FeedSearcher createCpasbienFeedSearcher() {
-		return new FeedSearcher(feedFilterer, cpasbienCrawler, cpasbienFilterComputor);
+	private TorrentSearcher createCpasbienFeedSearcher() {
+		return new TorrentSearcher(torrentFilterer, cpasbienCrawler, cpasbienFilterComputor);
 	}
 
-	private FeedSearcher createEztvFeedSearcher() {
-		return new FeedSearcher(feedFilterer, eztvCrawler, defaultFilterComputor);
+	private TorrentSearcher createEztvFeedSearcher() {
+		return new TorrentSearcher(torrentFilterer, eztvCrawler, defaultFilterComputor);
 	}
 
-	private FeedSearcher createKickAssFeedSearcher() {
-		return new FeedSearcher(feedFilterer, kickassCrawler, defaultFilterComputor);
+	private TorrentSearcher createKickAssFeedSearcher() {
+		return new TorrentSearcher(torrentFilterer, kickassCrawler, defaultFilterComputor);
 	}
 
 }

@@ -3,36 +3,38 @@ package org.betarss.provider;
 import static org.betarss.utils.FilterUtils.joinFilterAnd;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
 import org.betarss.domain.Quality;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 
 // TODO : to prototype ?
-public class FeedSearcher {
+public class TorrentSearcher {
 
-	private FeedFilterer feedFilterer;
+	private TorrentFilterer torrentFilterer;
 
 	private ICrawler iCrawler;
 
-	private IFilterComputor iFilterComputor;
+	private IFilterComputor filterComputor;
 
-	public FeedSearcher(FeedFilterer feedFilterer, ICrawler iCrawler, IFilterComputor iFilterComputor) {
-		this.feedFilterer = feedFilterer;
+	public TorrentSearcher(TorrentFilterer torrentFilterer, ICrawler iCrawler, IFilterComputor iFilterComputor) {
+		this.torrentFilterer = torrentFilterer;
 		this.iCrawler = iCrawler;
-		this.iFilterComputor = iFilterComputor;
+		this.filterComputor = iFilterComputor;
 	}
 
-	public Feed search(BetarssSearch search) throws IOException, FeedFilterException {
-		Feed feed = iCrawler.getFeed(search);
+	public List<Torrent<ShowEpisode>> doSearch(BetarssSearch search) throws IOException, FeedFilterException {
+		List<Torrent<ShowEpisode>> torrents = iCrawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
 		String filter = computeFilter(search);
-		return feedFilterer.filter(feed, filter);
+		return torrentFilterer.filter(torrents, filter);
 	}
 
 	private String computeFilter(BetarssSearch search) {
-		String searchFilter = iFilterComputor.getFilter(getLanguage(search), getQuality(search));
+		String searchFilter = filterComputor.getFilter(getLanguage(search), getQuality(search));
 		return joinFilterAnd(searchFilter, search.filter);
 	}
 

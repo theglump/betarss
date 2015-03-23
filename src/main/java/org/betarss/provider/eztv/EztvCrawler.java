@@ -5,23 +5,22 @@ import static org.betarss.utils.BetarssUtils.parseDefaultDate;
 import static org.jsoup.Jsoup.connect;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.BetarssSearch;
-import org.betarss.domain.Feed;
-import org.betarss.domain.FeedItem;
-import org.betarss.domain.builder.FeedBuilder;
-import org.betarss.domain.builder.FeedItemBuilder;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
+import org.betarss.exception.FeedFilterException;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.BetarssUtils.Function;
 import org.betarss.utils.ShowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
 
 @Service
 public class EztvCrawler implements ICrawler {
@@ -29,39 +28,34 @@ public class EztvCrawler implements ICrawler {
 	private static final String SEARCH_URL = "https://eztv.ch/search/";
 
 	private static final String PATTERN_1 = "(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(";
-	private static final String PATTERN_2_START = "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*";
-	private static final String PATTERN_2_MAGNET = PATTERN_2_START + "<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)";
-	private static final String PATTERN_2_TORRENT = PATTERN_2_START + "<a href=\"((((?!\").)*))\" class=\"download_1\"((?!download_1).)*)";
 
-	private static final boolean MAGNET = false;
+	//><a href="" data-file="The.Good.Wife.S06E16.HDTV.x264-LOL.torrent" data-url="http%3A%2F%2Fre.zoink.it%2Fg%2F14D33BC0B3021FE081DC31AB352E0E4612E85EFA" 
+
+	private static final String PATTERN_2 = "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)<a href=\"(((?!\").)*) class=\"download_1\"(((?!download_1).)*)";
+
 	private static final int FETCH_HTML_RETRY_NUMBER = 10;
 
 	private static final int DATE = 2;
 	private static final int TITLE = 4;
-	private static final int LOCATION = 7;
+	private static final int MAGNET = 7;
+	private static final int URL = 8;
 
 	@Autowired
 	private EztvCache eztvCache;
 
 	@Override
-	public Feed getFeed(final BetarssSearch betarssSearch) throws IOException {
-	String html = fetchHtml(betarssSearch);
-	Pattern entryPattern = getEntryPattern(getSearchLabel(betarssSearch), betarssSearch.magnet);
-	List<FeedItem> feedItems = getFeed(html, entryPattern);
-	return FeedBuilder.start(). //
-			withTitle(computeTitle(betarssSearch)). //
-			withFeedItems(feedItems).get();
-	
+	public List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+		String searchString = searchString(show, season);
+		return getTorrents(html(show), entryPattern(searchString));
 	}
 
-	private String fetchHtml(final BetarssSearch betarssSearch) {
+	private String html(final String show) {
 		return doTry(FETCH_HTML_RETRY_NUMBER, new Function<String>() {
 
 			@Override
 			public String doCall() throws Exception {
-				if (betarssSearch.showEpisode.show != null) {
-					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(betarssSearch.showEpisode.show).toString())
-							.post().html();
+				if (show != null) {
+					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(show).toString()).post().html();
 				}
 				return connect(SEARCH_URL).userAgent("Mozilla/5.0").post().html();
 
@@ -70,65 +64,54 @@ public class EztvCrawler implements ICrawler {
 		});
 	}
 
-	private List<FeedItem> getFeed(String html, Pattern pattern) throws IOException {
-		List<FeedItem> results = new ArrayList<FeedItem>();
+	private List<Torrent<ShowEpisode>> getTorrents(String html, Pattern pattern) throws IOException {
+		List<Torrent<ShowEpisode>> results = Lists.newArrayList();
 		Matcher matcher = pattern.matcher(html);
 		Date date = null;
 		while (matcher.find()) {
 			if (matcher.group(DATE) != null) {
-				date = parseDefaultDate(matcher.group(DATE), "dd, MMMMM, yyyy", Locale.US);
+				date = parseDate(matcher);
 			} else {
-				results.add(getFeedItem(matcher, date));
+				Torrent<ShowEpisode> torrent = getTorrent(matcher, date);
+				results.add(torrent);
 			}
 		}
 		return results;
 	}
 
-	private FeedItem getFeedItem(Matcher matcher, Date date) {
-		String title = matcher.group(TITLE);
-		String filename = title.replace(" ", ".") + ".mp4";
-		FeedItem feedItem = FeedItemBuilder.start(). //
-				withTitle(title). //
-				withDescription(title). //
-				withDate(date). //
-				withLocation(matcher.group(LOCATION)). //
-				withFilename(filename).get();
-		return feedItem;
+	private Torrent<ShowEpisode> getTorrent(Matcher matcher, Date date) {
+		Torrent<ShowEpisode> torrent = new Torrent<ShowEpisode>();
+		torrent.title = matcher.group(TITLE);
+		torrent.description = torrent.title;
+		torrent.filename = filename(torrent);
+		torrent.date = date;
+		torrent.magnet = matcher.group(MAGNET);
+		torrent.url = matcher.group(URL);
+		return torrent;
+	}
+
+	private Date parseDate(Matcher matcher) {
+		return parseDefaultDate(matcher.group(DATE), "dd, MMMMM, yyyy", Locale.US);
+	}
+
+	private String filename(Torrent<ShowEpisode> torrent) {
+		return torrent.title.replace(" ", ".") + ".mp4";
 	}
 
 	private Integer getTvShowId(String showName) {
 		return eztvCache.get(showName.toLowerCase());
 	}
 
-	private String computeTitle(BetarssSearch betarssSearch) {
-		if (betarssSearch.showEpisode.show != null) {
-			if (betarssSearch.showEpisode.season != null) {
-				return ShowUtils.upperCaseString(betarssSearch.showEpisode.show) + " " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season);
-			} else {
-				return ShowUtils.upperCaseString(betarssSearch.showEpisode.show);
-			}
-		}
-		return "EZTV feed";
+	private static Pattern entryPattern(String label) {
+		return Pattern.compile(PATTERN_1 + label + PATTERN_2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 	}
 
-	private static Pattern getEntryPattern(String label, boolean magnet) {
-		return MAGNET ? getMagnetPattern(label) : getTorrentPattern(label);
-	}
-
-	private static Pattern getTorrentPattern(String label) {
-		return Pattern.compile(PATTERN_1 + label + PATTERN_2_TORRENT, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-	}
-
-	private static Pattern getMagnetPattern(String label) {
-		return Pattern.compile(PATTERN_1 + label + PATTERN_2_MAGNET, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-	}
-
-	private String getSearchLabel(BetarssSearch betarssSearch) {
+	private String searchString(String show, Integer season) {
 		StringBuilder sb = new StringBuilder();
-		if (betarssSearch.showEpisode.show != null) {
-			sb.append(betarssSearch.showEpisode.show);
-			if (betarssSearch.showEpisode.season != null) {
-				sb.append(" " + ShowUtils.getFormattedShowSeason(betarssSearch.showEpisode.season));
+		if (show != null) {
+			sb.append(show);
+			if (season != null) {
+				sb.append(" ").append(ShowUtils.formatSeason(season));
 			}
 		}
 		return sb.toString();

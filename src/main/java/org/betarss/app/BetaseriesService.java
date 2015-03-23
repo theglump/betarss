@@ -12,15 +12,14 @@ import java.util.regex.Pattern;
 import org.betarss.domain.BaseSearch;
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
-import org.betarss.domain.Feed;
 import org.betarss.domain.Language;
-import org.betarss.domain.FeedItem;
 import org.betarss.domain.Provider;
-import org.betarss.domain.builder.FeedBuilder;
+import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.provider.FeedSearcher;
 import org.betarss.provider.FeedSearcherProvider;
+import org.betarss.provider.TorrentSearcher;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.jsoup.Jsoup;
@@ -44,9 +43,9 @@ public class BetaseriesService {
 	@Autowired
 	private ConfigurationService configurationService;
 
-	public Feed getFeed(final BetaseriesSearch search) throws IOException, FeedFilterException {
-		final List<FeedItem> feedItems = new CopyOnWriteArrayList<FeedItem>();
-		final FeedSearcher feedSearcher = getFeedSearcher(search);
+	public List<Torrent<ShowEpisode>> getTorrents(final BetaseriesSearch search) throws IOException, FeedFilterException {
+		final List<Torrent<ShowEpisode>> results = new CopyOnWriteArrayList<Torrent<ShowEpisode>>();
+		final TorrentSearcher torrentSearcher = getFeedSearcher(search);
 
 		SetMultimap<String, String> titlesBySeason = HashMultimap.create();
 		for (String title : getItemTitles(search.login)) {
@@ -67,11 +66,11 @@ public class BetaseriesService {
 					BetarssSearch betarssSearch = new BetarssSearch(search);
 					betarssSearch.showEpisode.show = showName;
 					betarssSearch.showEpisode.season = getSeason(first);
-					Feed feed = feedSearcher.search(betarssSearch);
+					List<Torrent<ShowEpisode>> torrents = torrentSearcher.doSearch(betarssSearch);
 					for (String title : titles) {
-						for (FeedItem feedItem : feed.getFeedItems()) {
-							if (feedItem.getTitle().startsWith((title))) {
-								feedItems.add(feedItem);
+						for (Torrent<ShowEpisode> torrent : torrents) {
+							if (torrent.title.startsWith((title))) {
+								results.add(torrent);
 							}
 						}
 					}
@@ -80,7 +79,7 @@ public class BetaseriesService {
 			});
 		}
 		BetarssUtils.multiThreadCalls(procedures, 120);
-		return FeedBuilder.start().withTitle(search.login + "@betaseries' feed").withFeedItems(feedItems).get();
+		return results;
 	}
 
 	private List<String> getItemTitles(String login) throws IOException {
@@ -100,7 +99,7 @@ public class BetaseriesService {
 		return m.find() ? Integer.parseInt(m.group(1)) : 0;
 	}
 
-	private FeedSearcher getFeedSearcher(BaseSearch betarssSearch) {
+	private TorrentSearcher getFeedSearcher(BaseSearch betarssSearch) {
 		Provider provider = getProvider(betarssSearch);
 		return feedSearcherProvider.get(provider);
 	}
