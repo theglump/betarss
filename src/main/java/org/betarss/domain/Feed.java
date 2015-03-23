@@ -5,9 +5,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.betarss.domain.builder.FeedBuilder;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "channel")
 public class Feed {
@@ -20,9 +19,12 @@ public class Feed {
 
 	}
 
-	public Feed(FeedBuilder builder) {
-		this.title = builder.title;
-		this.feedItems = builder.feedItems;
+	public Feed(String title, List<Torrent<ShowEpisode>> torrents, boolean magnet) {
+		this.title = title;
+		this.feedItems = Lists.newArrayList();
+		for (Torrent<?> torrent : torrents) {
+			this.feedItems.add(new FeedItem(torrent, magnet));
+		}
 	}
 
 	@XmlElement(name = "title")

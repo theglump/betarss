@@ -16,6 +16,10 @@ public class ShowUtils {
 		return "S" + (season < 10 ? "0" + season : season);
 	}
 
+	public static String formatSeasonOldSchool(Integer season) {
+		return season + "x";
+	}
+
 	public static String formatEpisodeWithSeason(String showName, Integer season) {
 		return showName + " " + formatSeason(season);
 	}

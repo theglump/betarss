@@ -28,17 +28,23 @@ public class BetarssRessourceConnectedTest {
 		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, "fr", null, null, null, true, true);
 		assertThat(asString(feed)).isEqualTo(expectedResult("FR_language"));
 	}
-	
+
 	@Test
 	public void search_matches_with_VOSTFR_language() throws Exception {
 		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, "vostfr", null, null, null, true, true);
 		assertThat(asString(feed)).isEqualTo(expectedResult("VOSTFR_language"));
 	}
-	
+
 	@Test
 	public void search_matches_with_EN_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", "hd", null, true, true);
+		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", "hd", null, true, false);
 		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language"));
+	}
+
+	@Test
+	public void search_matches_with_EN_language_and_alternative_season_format() throws Exception {
+		HttpEntity<byte[]> feed = resource.feed("sherlock", 1, null, "eztv", null, null, true, false);
+		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language_and_alternative_season_format"));
 	}
 
 	private String expectedResult(String testId) throws IOException {

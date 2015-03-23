@@ -1,5 +1,7 @@
 package org.betarss.resource;
 
+import static org.betarss.utils.ShowUtils.formatEpisodeUpperCase;
+
 import java.util.List;
 
 import org.betarss.app.BetarssService;
@@ -12,9 +14,8 @@ import org.betarss.domain.Quality;
 import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.rss.RssProducer;
+import org.betarss.producer.RssProducer;
 import org.betarss.utils.SSLCertificateUtils;
-import org.betarss.utils.ShowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -132,7 +133,7 @@ public class BetarssResource {
 	}
 
 	private String feedTitle(BetarssSearch search) {
-		return ShowUtils.formatEpisodeUpperCase(search.showEpisode.show, search.showEpisode.season);
+		return search.showEpisode.show != null ? formatEpisodeUpperCase(search.showEpisode.show, search.showEpisode.season) : "Last entries...";
 	}
 
 	private String feedTitle(BetaseriesSearch search) {

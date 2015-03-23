@@ -2,6 +2,8 @@ package org.betarss.provider.eztv;
 
 import static org.betarss.utils.BetarssUtils.doTry;
 import static org.betarss.utils.BetarssUtils.parseDefaultDate;
+import static org.betarss.utils.ShowUtils.formatSeason;
+import static org.betarss.utils.ShowUtils.formatSeasonOldSchool;
 import static org.jsoup.Jsoup.connect;
 
 import java.io.IOException;
@@ -16,7 +18,6 @@ import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.provider.ICrawler;
 import org.betarss.utils.BetarssUtils.Function;
-import org.betarss.utils.ShowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,17 +29,15 @@ public class EztvCrawler implements ICrawler {
 	private static final String SEARCH_URL = "https://eztv.ch/search/";
 
 	private static final String PATTERN_1 = "(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(";
-
-	//><a href="" data-file="The.Good.Wife.S06E16.HDTV.x264-LOL.torrent" data-url="http%3A%2F%2Fre.zoink.it%2Fg%2F14D33BC0B3021FE081DC31AB352E0E4612E85EFA" 
-
-	private static final String PATTERN_2 = "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"((?!magnet).)*)<a href=\"(((?!\").)*) class=\"download_1\"(((?!download_1).)*)";
+	private static final String PATTERN_2 = "((?!\").)*MB\\))\"((?!forum_thread_post_end).)*<a href=\"(magnet((?!\").)*)\"(((?!forum_thread_post_end).)*))";
+	private static final Pattern URL_PATTERN = Pattern.compile("href=\"(((?!\").)*)\" class=\"download", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
 	private static final int FETCH_HTML_RETRY_NUMBER = 10;
 
 	private static final int DATE = 2;
 	private static final int TITLE = 4;
-	private static final int MAGNET = 7;
-	private static final int URL = 8;
+	private static final int MAGNET = 9;
+	private static final int URLS_HTML = 10;
 
 	@Autowired
 	private EztvCache eztvCache;
@@ -86,8 +85,25 @@ public class EztvCrawler implements ICrawler {
 		torrent.filename = filename(torrent);
 		torrent.date = date;
 		torrent.magnet = matcher.group(MAGNET);
-		torrent.url = matcher.group(URL);
+		torrent.url = url(matcher.group(URLS_HTML));
 		return torrent;
+	}
+
+	private String url(String urlsHtml) {
+		Matcher matcher = URL_PATTERN.matcher(urlsHtml);
+		String defaultResult = null;
+		while (matcher.find()) {
+			String url = matcher.group(1);
+			if (url.contains("extratorrent")) {
+				return url;
+			} else if (url.contains("piratebay")) {
+				continue;
+			} else if (url.contains("zoink")) {
+				continue;
+			}
+			defaultResult = url;
+		}
+		return defaultResult;
 	}
 
 	private Date parseDate(Matcher matcher) {
@@ -111,8 +127,11 @@ public class EztvCrawler implements ICrawler {
 		if (show != null) {
 			sb.append(show);
 			if (season != null) {
-				sb.append(" ").append(ShowUtils.formatSeason(season));
+				sb.append(" (").append(formatSeason(season)).append("|").append(formatSeasonOldSchool(season)).append(")");
 			}
+		} else {
+			// conserve same number of groups
+			sb.append("()");
 		}
 		return sb.toString();
 	}
