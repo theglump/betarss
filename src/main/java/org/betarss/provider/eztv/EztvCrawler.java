@@ -36,7 +36,7 @@ public class EztvCrawler implements ICrawler {
 
 	private static final int DATE = 2;
 	private static final int TITLE = 4;
-	private static final int MAGNET = 9;
+	private static final int MAGNET = 8;
 	private static final int URLS_HTML = 10;
 
 	@Autowired

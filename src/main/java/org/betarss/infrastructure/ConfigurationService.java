@@ -18,7 +18,7 @@ public class ConfigurationService {
 		ListMultimap<Language, Provider> providers = ArrayListMultimap.create();
 		providers.put(Language.FR, Provider.CPASBIEN);
 		providers.put(Language.VOSTFR, Provider.CPASBIEN);
-		providers.put(Language.EN, Provider.KICKASS);
+		providers.put(Language.EN, Provider.EZTV);
 		return providers;
 	}
 

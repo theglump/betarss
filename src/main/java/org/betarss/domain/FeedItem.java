@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.betarss.utils.StringUtils;
+
 import com.google.common.base.Objects;
 
 @XmlRootElement(name = "item")
@@ -25,7 +27,7 @@ public class FeedItem {
 	public FeedItem(Torrent<?> torrent, boolean magnet) {
 		this.title = torrent.title;
 		this.description = torrent.title;
-		this.location = magnet && isNotEmpty(torrent.magnet) ? torrent.magnet : torrent.url;
+		this.location = magnet && StringUtils.isNotEmpty(torrent.magnet) ? torrent.magnet : torrent.url;
 		this.filename = torrent.filename;
 		this.date = torrent.date;
 	}
@@ -66,7 +68,4 @@ public class FeedItem {
 				add("location", location).add("filename", filename).add("date", date).toString();
 	}
 
-	private boolean isNotEmpty(String magnet) {
-		return magnet != null && !magnet.isEmpty();
-	}
 }

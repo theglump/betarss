@@ -9,7 +9,18 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class SSLCertificateUtils {
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+public class HttpUtils {
+
+	public static HttpEntity<byte[]> httpEntity(String type, String subType, String data) {
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(new MediaType(type, subType));
+		header.setContentLength(data.length());
+		return new HttpEntity<byte[]>(data.getBytes(), header);
+	}
 
 	public static void avoidHttpsErrors() {
 		try {

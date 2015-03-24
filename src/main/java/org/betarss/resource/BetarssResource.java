@@ -9,17 +9,16 @@ import org.betarss.app.BetaseriesService;
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
 import org.betarss.domain.Language;
+import org.betarss.domain.Mode;
 import org.betarss.domain.Provider;
 import org.betarss.domain.Quality;
 import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.producer.RssProducer;
-import org.betarss.utils.SSLCertificateUtils;
+import org.betarss.producer.ProducerProvider;
+import org.betarss.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +35,7 @@ public class BetarssResource {
 	private BetarssService betarssService;
 
 	@Autowired
-	private RssProducer jaxbRssProducer;
+	private ProducerProvider producerProvider;
 
 	@Autowired
 	private ConfigurationService configurationService;
@@ -50,7 +49,8 @@ public class BetarssResource {
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@RequestParam(required = false, defaultValue = "true") Boolean magnet) throws Exception {
+			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
 		//TODO : P2 - builder pour feed search avec validation
 		BetarssSearch search = new BetarssSearch();
@@ -69,7 +69,8 @@ public class BetarssResource {
 		search.date = date;
 
 		List<Torrent<ShowEpisode>> torrents = betarssService.searchTorrents(search);
-		return httpEntity(produceRss(search, torrents));
+
+		return produce(mode, torrents, feedTitle(search), magnet);
 	}
 
 	@RequestMapping(value = "last", method = RequestMethod.GET)
@@ -79,8 +80,9 @@ public class BetarssResource {
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@RequestParam(required = false, defaultValue = "true") Boolean magnet) throws Exception {
-		return feed(null, -1, language, provider, quality, filter, date, magnet);
+			@RequestParam(required = false, defaultValue = "true") Boolean magnet, @RequestParam(required = false, defaultValue = "rss") String mode)
+			throws Exception {
+		return feed(null, -1, language, provider, quality, filter, date, magnet, mode);
 	}
 
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
@@ -91,7 +93,8 @@ public class BetarssResource {
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@RequestParam(required = false, defaultValue = "true") Boolean magnet) throws Exception {
+			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
 		BetaseriesSearch search = new BetaseriesSearch();
 		search.login = login;
@@ -108,7 +111,8 @@ public class BetarssResource {
 		search.date = date;
 
 		List<Torrent<ShowEpisode>> torrents = betaseriesService.getTorrents(search);
-		return httpEntity(produceRss(search, torrents));
+
+		return produce(mode, torrents, feedTitle(search), magnet);
 	}
 
 	@RequestMapping(value = "search", method = RequestMethod.GET)
@@ -117,19 +121,8 @@ public class BetarssResource {
 		return null;
 	}
 
-	private HttpEntity<byte[]> httpEntity(String xml) {
-		HttpHeaders header = new HttpHeaders();
-		header.setContentType(new MediaType("application", "xml"));
-		header.setContentLength(xml.length());
-		return new HttpEntity<byte[]>(xml.getBytes(), header);
-	}
-
-	private String produceRss(BetarssSearch search, List<Torrent<ShowEpisode>> torrents) throws Exception {
-		return jaxbRssProducer.produceRSS2(feedTitle(search), torrents, search.magnet);
-	}
-
-	private String produceRss(BetaseriesSearch search, List<Torrent<ShowEpisode>> torrents) throws Exception {
-		return jaxbRssProducer.produceRSS2(feedTitle(search), torrents, search.magnet);
+	private HttpEntity<byte[]> produce(String mode, List<Torrent<ShowEpisode>> torrents, String title, boolean magnet) throws Exception {
+		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(title, torrents, magnet);
 	}
 
 	private String feedTitle(BetarssSearch search) {
@@ -140,8 +133,12 @@ public class BetarssResource {
 		return search.login + "@betaseries.com";
 	}
 
+	private Mode getMode(String mode) {
+		return Mode.parse(mode);
+	}
+
 	static {
-		SSLCertificateUtils.avoidHttpsErrors();
+		HttpUtils.avoidHttpsErrors();
 	}
 
 }
