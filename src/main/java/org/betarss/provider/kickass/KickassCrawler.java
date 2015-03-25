@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
-import org.betarss.provider.ICrawler;
+import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.ShowUtils;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 @Service
-public class KickassCrawler implements ICrawler {
+public class KickassCrawler implements Crawler {
 
 	private static final Pattern ITEMS_PATTERN = Pattern.compile("((<tr class=\"(odd|even)\"((?!red lasttd center).)*))", Pattern.DOTALL
 			| Pattern.CASE_INSENSITIVE);

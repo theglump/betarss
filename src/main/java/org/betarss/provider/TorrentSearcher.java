@@ -17,18 +17,18 @@ public class TorrentSearcher {
 
 	private TorrentFilterer torrentFilterer;
 
-	private ICrawler iCrawler;
+	private Crawler crawler;
 
-	private IFilterComputor filterComputor;
+	private FilterComputor filterComputor;
 
-	public TorrentSearcher(TorrentFilterer torrentFilterer, ICrawler iCrawler, IFilterComputor iFilterComputor) {
+	public TorrentSearcher(TorrentFilterer torrentFilterer, Crawler crawler, FilterComputor filterComputor) {
 		this.torrentFilterer = torrentFilterer;
-		this.iCrawler = iCrawler;
-		this.filterComputor = iFilterComputor;
+		this.crawler = crawler;
+		this.filterComputor = filterComputor;
 	}
 
 	public List<Torrent<ShowEpisode>> doSearch(BetarssSearch search) throws IOException, FeedFilterException {
-		List<Torrent<ShowEpisode>> torrents = iCrawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
+		List<Torrent<ShowEpisode>> torrents = crawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
 		String filter = computeFilter(search);
 		return torrentFilterer.filter(torrents, filter);
 	}

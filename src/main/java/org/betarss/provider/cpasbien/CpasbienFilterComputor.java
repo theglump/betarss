@@ -2,12 +2,12 @@ package org.betarss.provider.cpasbien;
 
 import org.betarss.domain.Language;
 import org.betarss.domain.Quality;
-import org.betarss.provider.IFilterComputor;
+import org.betarss.provider.FilterComputor;
 import org.betarss.utils.FilterUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CpasbienFilterComputor implements IFilterComputor {
+public class CpasbienFilterComputor implements FilterComputor {
 
 	@Override
 	public String getFilter(Language language, Quality quality) {

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
-import org.betarss.provider.ICrawler;
+import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 @Service
-public class EztvCrawler implements ICrawler {
+public class EztvCrawler implements Crawler {
 
 	private static final String SEARCH_URL = "https://eztv.ch/search/";
 

@@ -10,7 +10,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UrlProducer implements IProducer {
+public class UrlProducer implements Producer {
 
 	@Override
 	public HttpEntity<byte[]> produceAsHttpEntity(String title, List<Torrent<ShowEpisode>> torrents, boolean magnet) throws Exception {

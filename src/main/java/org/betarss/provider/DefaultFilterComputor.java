@@ -5,7 +5,7 @@ import org.betarss.domain.Quality;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DefaultFilterComputor implements IFilterComputor {
+public class DefaultFilterComputor implements FilterComputor {
 
 	@Override
 	public String getFilter(Language language, Quality quality) {

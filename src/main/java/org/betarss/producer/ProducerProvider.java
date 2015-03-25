@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 @Service
 public class ProducerProvider {
 
-	private Map<Mode, IProducer> producers;
+	private Map<Mode, Producer> producers;
 
 	@Autowired
 	private RssProducer rssProducer;
@@ -19,7 +19,7 @@ public class ProducerProvider {
 	@Autowired
 	private UrlProducer urlProducer;
 
-	public IProducer provide(Mode mode) {
+	public Producer provide(Mode mode) {
 		if (producers == null) {
 			buildMap();
 		}

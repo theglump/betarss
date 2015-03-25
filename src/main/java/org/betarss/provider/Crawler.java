@@ -7,6 +7,6 @@ import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 
-public interface ICrawler {
+public interface Crawler {
 	List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException;
 }

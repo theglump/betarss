@@ -17,7 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RssProducer implements IProducer {
+public class RssProducer implements Producer {
 
 	@Override
 	public HttpEntity<byte[]> produceAsHttpEntity(String title, List<Torrent<ShowEpisode>> torrents, boolean magnet) throws Exception {

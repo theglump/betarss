@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
-import org.betarss.provider.ICrawler;
+import org.betarss.provider.Crawler;
 import org.betarss.utils.ShowUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 @Service
-public class CpasbienCrawler implements ICrawler {
+public class CpasbienCrawler implements Crawler {
 
 	private static final String SEARCH_URL = "http://www.cpasbien.pw/recherche/";
 	private static final String LAST_ITEMS_URL = "http://www.cpasbien.pw/view_cat.php?categorie=series";
