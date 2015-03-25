@@ -5,6 +5,7 @@ import org.betarss.provider.cpasbien.CpasbienCrawler;
 import org.betarss.provider.cpasbien.CpasbienFilterComputor;
 import org.betarss.provider.eztv.EztvCrawler;
 import org.betarss.provider.kickass.KickassCrawler;
+import org.betarss.provider.showrss.ShowRssCrawler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,9 @@ public class TorrentSearcherProvider {
 	private KickassCrawler kickassCrawler;
 
 	@Autowired
+	private ShowRssCrawler showRssCrawler;
+
+	@Autowired
 	private DefaultFilterComputor defaultFilterComputor;
 
 	public TorrentSearcher get(Provider provider) {
@@ -37,8 +41,10 @@ public class TorrentSearcherProvider {
 			return createKickAssFeedSearcher();
 		case CPASBIEN:
 			return createCpasbienFeedSearcher();
+		case SHOWRSS:
+			return createShowRssFeedSearcher();
 		}
-		throw new UnsupportedOperationException("Provider " + provider + " is not supported");
+		throw new IllegalArgumentException("Provider " + provider + " is not supported");
 	}
 
 	private TorrentSearcher createCpasbienFeedSearcher() {
@@ -51,6 +57,10 @@ public class TorrentSearcherProvider {
 
 	private TorrentSearcher createKickAssFeedSearcher() {
 		return new TorrentSearcher(torrentFilterer, kickassCrawler, defaultFilterComputor);
+	}
+
+	private TorrentSearcher createShowRssFeedSearcher() {
+		return new TorrentSearcher(torrentFilterer, showRssCrawler, defaultFilterComputor);
 	}
 
 }

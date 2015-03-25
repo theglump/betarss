@@ -1,10 +1,10 @@
 package org.betarss.domain;
 
-
 public enum Provider {
 	CPASBIEN("cpasbien", Language.FR, Language.VOSTFR), //
 	EZTV("eztv", Language.EN), //
-	KICKASS("kickass", Language.EN);
+	KICKASS("kickass", Language.EN), //
+	SHOWRSS("showrss", Language.EN);
 
 	String id;
 	Language[] languages;

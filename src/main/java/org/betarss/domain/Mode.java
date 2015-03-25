@@ -1,9 +1,7 @@
 package org.betarss.domain;
 
-
 public enum Mode {
-	RSS("rss"), //
-	URL("url");
+	RSS("rss"), URL("url"), HTML("html");
 
 	private String id;
 

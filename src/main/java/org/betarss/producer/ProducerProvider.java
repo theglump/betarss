@@ -19,6 +19,9 @@ public class ProducerProvider {
 	@Autowired
 	private UrlProducer urlProducer;
 
+	@Autowired
+	private HtmlProducer htmlProducer;
+
 	public Producer provide(Mode mode) {
 		if (producers == null) {
 			buildMap();
@@ -30,5 +33,6 @@ public class ProducerProvider {
 		producers = Maps.newHashMap();
 		producers.put(Mode.RSS, rssProducer);
 		producers.put(Mode.URL, urlProducer);
+		producers.put(Mode.HTML, htmlProducer);
 	}
 }
