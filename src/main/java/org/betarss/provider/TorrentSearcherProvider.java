@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FeedSearcherProvider {
+public class TorrentSearcherProvider {
 
 	@Autowired
 	private TorrentFilterer torrentFilterer;

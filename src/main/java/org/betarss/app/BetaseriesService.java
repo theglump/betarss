@@ -18,7 +18,7 @@ import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.provider.FeedSearcherProvider;
+import org.betarss.provider.TorrentSearcherProvider;
 import org.betarss.provider.TorrentSearcher;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
@@ -38,7 +38,7 @@ public class BetaseriesService {
 	private static final Pattern SEASON_PATTERN = Pattern.compile(".*S0?(\\d+).*");
 
 	@Autowired
-	private FeedSearcherProvider feedSearcherProvider;
+	private TorrentSearcherProvider torrentSearcherProvider;
 
 	@Autowired
 	private ConfigurationService configurationService;
@@ -101,7 +101,7 @@ public class BetaseriesService {
 
 	private TorrentSearcher getFeedSearcher(BaseSearch betarssSearch) {
 		Provider provider = getProvider(betarssSearch);
-		return feedSearcherProvider.get(provider);
+		return torrentSearcherProvider.get(provider);
 	}
 
 	private Provider getProvider(BaseSearch baseSearch) {
