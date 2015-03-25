@@ -111,7 +111,7 @@ public class EztvCrawler implements ICrawler {
 	}
 
 	private String filename(Torrent<ShowEpisode> torrent) {
-		return torrent.title.replace(" ", ".") + ".mp4";
+		return torrent.title.replace(" ", ".").replaceAll("\\.\\(.*\\)", "") + ".mp4";
 	}
 
 	private Integer getTvShowId(String showName) {
