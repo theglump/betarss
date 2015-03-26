@@ -79,15 +79,7 @@ public class HttpServiceImpl implements HttpService {
 	@Override
 	public byte[] getData(String url) {
 		try {
-			URL u = new URL(url);
-			HttpURLConnection http = (HttpURLConnection) u.openConnection();
-			Map<String, List<String>> header = http.getHeaderFields();
-			while (isRedirected(header)) {
-				url = header.get("Location").get(0);
-				u = new URL(url);
-				http = (HttpURLConnection) u.openConnection();
-				header = http.getHeaderFields();
-			}
+			HttpURLConnection http = openConnection(url);
 			InputStream input = http.getInputStream();
 			return ByteStreams.toByteArray(input);
 		} catch (MalformedURLException e) {
@@ -101,6 +93,25 @@ public class HttpServiceImpl implements HttpService {
 	@Override
 	public String dataAsString(String url) {
 		return new String(getData(url), Charsets.UTF_8);
+	}
+
+	private HttpURLConnection openConnection(String url) throws MalformedURLException, IOException {
+		HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
+		Map<String, List<String>> header = http.getHeaderFields();
+		while (isRedirected(header)) {
+			url = header.get("Location").get(0);
+			http = (HttpURLConnection) new URL(url).openConnection();
+			header = http.getHeaderFields();
+		}
+		return http;
+	}
+
+	private boolean isRedirected(Map<String, List<String>> header) {
+		for (String hv : header.get(null)) {
+			if (hv.contains(" 301 ") || hv.contains(" 302 "))
+				return true;
+		}
+		return false;
 	}
 
 	private Document getDocument(String url) throws IOException {
@@ -117,14 +128,6 @@ public class HttpServiceImpl implements HttpService {
 		} catch (IOException e) {
 			throw new BetarssException(e);
 		}
-	}
-
-	private boolean isRedirected(Map<String, List<String>> header) {
-		for (String hv : header.get(null)) {
-			if (hv.contains(" 301 ") || hv.contains(" 302 "))
-				return true;
-		}
-		return false;
 	}
 
 	public static class Parameter {
