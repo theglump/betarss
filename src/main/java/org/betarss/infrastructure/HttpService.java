@@ -1,6 +1,5 @@
 package org.betarss.infrastructure;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.betarss.infrastructure.HttpServiceImpl.Parameter;
@@ -17,7 +16,7 @@ public interface HttpService {
 
 	List<String> getTags(String url, String tagName);
 
-	byte[] getData(String url) throws IOException;
+	byte[] getData(String url);
 
-	String dataAsString(String url) throws IOException;
+	String dataAsString(String url);
 }

@@ -3,7 +3,6 @@ package org.betarss.provider.eztv;
 import static org.betarss.utils.Shows.formatSeason;
 import static org.betarss.utils.Shows.formatSeasonOldSchool;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -11,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.HttpService;
 import org.betarss.infrastructure.HttpServiceImpl.Parameter;
 import org.betarss.provider.Crawler;
@@ -37,6 +35,8 @@ public class EztvCrawler implements Crawler {
 	private static final int MAGNET = 8;
 	private static final int URLS_HTML = 10;
 
+	private static boolean AVOID_ZOINK_TORRENT = true;
+
 	@Autowired
 	private HttpService httpService;
 
@@ -44,9 +44,8 @@ public class EztvCrawler implements Crawler {
 	private EztvCache eztvCache;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
-		String searchString = searchString(show, season);
-		return getTorrents(html(show), entryPattern(searchString));
+	public List<Torrent> doCrawl(String show, Integer season) {
+		return getTorrents(html(show), getEntryPattern(show, season));
 	}
 
 	private String html(final String show) {
@@ -54,7 +53,7 @@ public class EztvCrawler implements Crawler {
 		return httpService.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
 	}
 
-	private List<Torrent> getTorrents(String html, Pattern pattern) throws IOException {
+	private List<Torrent> getTorrents(String html, Pattern pattern) {
 		List<Torrent> results = Lists.newArrayList();
 		Matcher matcher = pattern.matcher(html);
 		Date date = null;
@@ -89,7 +88,7 @@ public class EztvCrawler implements Crawler {
 				return url;
 			} else if (url.contains("piratebay")) {
 				continue;
-			} else if (url.contains("zoink")) {
+			} else if (AVOID_ZOINK_TORRENT && url.contains("zoink")) {
 				continue;
 			}
 			defaultResult = url;
@@ -109,11 +108,11 @@ public class EztvCrawler implements Crawler {
 		return eztvCache.get(showName.toLowerCase());
 	}
 
-	private static Pattern entryPattern(String label) {
-		return Pattern.compile(PATTERN_1 + label + PATTERN_2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+	private Pattern getEntryPattern(String show, Integer season) {
+		return Pattern.compile(PATTERN_1 + getSearchPattern(show, season) + PATTERN_2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 	}
 
-	private String searchString(String show, Integer season) {
+	private String getSearchPattern(String show, Integer season) {
 		StringBuilder sb = new StringBuilder();
 		if (show != null) {
 			sb.append(show);

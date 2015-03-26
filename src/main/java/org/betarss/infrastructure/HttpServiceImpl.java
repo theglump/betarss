@@ -3,6 +3,7 @@ package org.betarss.infrastructure;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -76,22 +77,29 @@ public class HttpServiceImpl implements HttpService {
 	}
 
 	@Override
-	public byte[] getData(String url) throws IOException {
-		URL u = new URL(url);
-		HttpURLConnection http = (HttpURLConnection) u.openConnection();
-		Map<String, List<String>> header = http.getHeaderFields();
-		while (isRedirected(header)) {
-			url = header.get("Location").get(0);
-			u = new URL(url);
-			http = (HttpURLConnection) u.openConnection();
-			header = http.getHeaderFields();
+	public byte[] getData(String url) {
+		try {
+			URL u = new URL(url);
+			HttpURLConnection http = (HttpURLConnection) u.openConnection();
+			Map<String, List<String>> header = http.getHeaderFields();
+			while (isRedirected(header)) {
+				url = header.get("Location").get(0);
+				u = new URL(url);
+				http = (HttpURLConnection) u.openConnection();
+				header = http.getHeaderFields();
+			}
+			InputStream input = http.getInputStream();
+			return ByteStreams.toByteArray(input);
+		} catch (MalformedURLException e) {
+			throw new BetarssException("error during data fetching for " + url, e);
+		} catch (IOException e) {
+			throw new BetarssException("error during data fetching for " + url, e);
 		}
-		InputStream input = http.getInputStream();
-		return ByteStreams.toByteArray(input);
+
 	}
 
 	@Override
-	public String dataAsString(String url) throws IOException {
+	public String dataAsString(String url) {
 		return new String(getData(url), Charsets.UTF_8);
 	}
 

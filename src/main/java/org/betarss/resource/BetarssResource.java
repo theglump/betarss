@@ -12,7 +12,6 @@ import org.betarss.domain.Language;
 import org.betarss.domain.Mode;
 import org.betarss.domain.Provider;
 import org.betarss.domain.Quality;
-import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.producer.ProducerProvider;

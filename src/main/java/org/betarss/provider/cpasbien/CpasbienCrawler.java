@@ -1,6 +1,5 @@
 package org.betarss.provider.cpasbien;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.HttpService;
 import org.betarss.infrastructure.HttpServiceImpl.Parameter;
 import org.betarss.provider.Crawler;
@@ -34,7 +32,7 @@ public class CpasbienCrawler implements Crawler {
 	private HttpService httpService;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+	public List<Torrent> doCrawl(String show, Integer season) {
 		if (show == null) {
 			return getFeed();
 		}
@@ -43,11 +41,11 @@ public class CpasbienCrawler implements Crawler {
 		return torrents;
 	}
 
-	public List<Torrent> getFeed() throws IOException {
+	public List<Torrent> getFeed() {
 		return getFeedItems(fetchHtml());
 	}
 
-	private List<Torrent> getFeedItems(String html) throws IOException {
+	private List<Torrent> getFeedItems(String html) {
 		List<Torrent> torrents = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
 		while (m.find()) {
@@ -65,11 +63,11 @@ public class CpasbienCrawler implements Crawler {
 		return torrent;
 	}
 
-	private String fetchHtml() throws IOException {
+	private String fetchHtml() {
 		return httpService.get(LAST_ITEMS_URL);
 	}
 
-	private String fetchHtml(String showName, Integer season) throws IOException {
+	private String fetchHtml(String showName, Integer season) {
 		String searchString = getSearchString(showName, season);
 		return httpService.post(SEARCH_URL, Parameter.create("champ_recherche", searchString));
 	}

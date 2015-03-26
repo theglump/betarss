@@ -10,7 +10,7 @@ public class DefaultFilterComputor implements FilterComputor {
 	@Override
 	public String getFilter(Language language, Quality quality) {
 		StringBuilder filter = new StringBuilder();
-		if (quality == Quality.SD) {
+		if (quality == Quality.HD720p) {
 			filter.append("!720p");
 		} else if (quality == Quality.HD) {
 			filter.append("720p");

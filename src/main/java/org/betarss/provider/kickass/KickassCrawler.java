@@ -2,7 +2,6 @@ package org.betarss.provider.kickass;
 
 import static org.betarss.utils.BetarssUtils.multiThreadCalls;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -11,14 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.HttpService;
 import org.betarss.infrastructure.HttpServiceImpl.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.Shows;
-import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,22 +45,22 @@ public class KickassCrawler implements Crawler {
 	private HttpService httpService;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+	public List<Torrent> doCrawl(String show, Integer season) {
 		if (show == null) {
 			return crawlNewTorrents(show, season);
 		}
 		return crawlForSeason(show, season);
 	}
 
-	public List<Torrent> crawlForSeason(String show, Integer season) throws IOException {
+	public List<Torrent> crawlForSeason(String show, Integer season) {
 		return getTorrents(fetchHtml(show, season));
 	}
 
-	public List<Torrent> crawlNewTorrents(String show, Integer season) throws IOException {
+	public List<Torrent> crawlNewTorrents(String show, Integer season) {
 		return getTorrents(fetchHtml());
 	}
 
-	private List<Torrent> getTorrents(String html) throws IOException {
+	private List<Torrent> getTorrents(String html) {
 		final List<Torrent> feedItems = new CopyOnWriteArrayList<Torrent>();
 		List<Procedure> procedures = Lists.newArrayList();
 		Matcher m = ITEMS_PATTERN.matcher(html);
@@ -83,7 +80,7 @@ public class KickassCrawler implements Crawler {
 		return feedItems;
 	}
 
-	private Torrent createTorrent(String itemHtml) throws IOException {
+	private Torrent createTorrent(String itemHtml) {
 		Matcher matcher = ITEM_PATTERN.matcher(itemHtml);
 		if (matcher.find()) {
 			Torrent torrent = new Torrent();
@@ -96,8 +93,8 @@ public class KickassCrawler implements Crawler {
 		return null;
 	}
 
-	private Date getDate(String torrentPageUrl) throws IOException {
-		String html = Jsoup.connect("https://kickass.to" + torrentPageUrl).userAgent("Mozilla/5.0").get().html();
+	private Date getDate(String torrentPageUrl) {
+		String html = httpService.get("https://kickass.to" + torrentPageUrl);
 		Matcher dateMatcher = DATE_PATTERN.matcher(html);
 		if (dateMatcher.find()) {
 			return BetarssUtils.parseDate(dateMatcher.group(1), "MMM dd, yyyy", Locale.US);
@@ -105,7 +102,7 @@ public class KickassCrawler implements Crawler {
 		return null;
 	}
 
-	private String fetchHtml() throws IOException {
+	private String fetchHtml() {
 		try {
 			return httpService.get(LAST_ITEMS_URLS);
 		} catch (Exception e) {
@@ -113,7 +110,7 @@ public class KickassCrawler implements Crawler {
 		return "";
 	}
 
-	private String fetchHtml(String showName, Integer season) throws IOException {
+	private String fetchHtml(String showName, Integer season) {
 		try {
 			String searchString = getSearchString(showName, season);
 			return httpService.post(SEARCH_URL, Parameter.create("q", searchString));

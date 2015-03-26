@@ -2,7 +2,6 @@ package org.betarss.producer;
 
 import java.util.List;
 
-import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.HttpUtils;

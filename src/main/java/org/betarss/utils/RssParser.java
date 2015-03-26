@@ -1,9 +1,7 @@
 package org.betarss.utils;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
@@ -28,14 +26,10 @@ public class RssParser {
 	static final String ITEM = "item";
 	static final String PUB_DATE = "pubDate";
 
-	final URL url;
+	final String feed;
 
-	public RssParser(String feedUrl) {
-		try {
-			this.url = new URL(feedUrl);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+	public RssParser(String feed) {
+		this.feed = feed;
 	}
 
 	public List<Torrent> parse() {
@@ -46,6 +40,7 @@ public class RssParser {
 		return parse("rawtitle");
 	}
 
+	@SuppressWarnings("deprecation")
 	private List<Torrent> parse(String titleElementName) {
 		List<Torrent> torrents = Lists.newArrayList();
 		try {
@@ -56,7 +51,7 @@ public class RssParser {
 			String pubdate = "";
 
 			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			InputStream in = read();
+			InputStream in = new ByteArrayInputStream(feed.getBytes());
 			XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 			while (eventReader.hasNext()) {
 				XMLEvent event = eventReader.nextEvent();
@@ -91,7 +86,7 @@ public class RssParser {
 				}
 			}
 		} catch (XMLStreamException e) {
-			throw new BetarssException("Error during rss parsing of " + url, e);
+			throw new BetarssException("Error during rss parsing", e);
 		}
 		return torrents;
 	}
@@ -103,13 +98,5 @@ public class RssParser {
 			result = event.asCharacters().getData();
 		}
 		return result;
-	}
-
-	private InputStream read() {
-		try {
-			return url.openStream();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }

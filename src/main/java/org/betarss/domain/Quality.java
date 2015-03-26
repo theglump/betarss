@@ -1,7 +1,7 @@
 package org.betarss.domain;
 
 public enum Quality {
-	HD("hd"), SD("sd");
+	HD("hd"), HD720p("720p");
 
 	String id;
 
@@ -15,7 +15,7 @@ public enum Quality {
 				return p;
 			}
 		}
-		throw new IllegalArgumentException("quality " + id + " is not supported (hd|sd)");
+		throw new IllegalArgumentException("quality " + id + " is not supported (hd|720p)");
 	}
 
 }
