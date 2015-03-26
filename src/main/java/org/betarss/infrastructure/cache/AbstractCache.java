@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 
 public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
-	private long refreshedAt;
+	private long lastRefreshedAt;
 	private Map<K, V> cache;
 
 	public AbstractCache() {
@@ -30,7 +30,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 	}
 
 	private void internalInit() {
-		refreshedAt = System.currentTimeMillis();
+		lastRefreshedAt = System.currentTimeMillis();
 		cache = Maps.newConcurrentMap();
 		init();
 	}
@@ -42,13 +42,21 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 		return false;
 	}
 
-	protected boolean needRefresh() {
-		return false;
+	/**
+	 * @return how many hours cache must be refresh
+	 */
+	protected long refreshEvery() {
+		return 0;
 	}
 
-	protected long timeSinceRefresh(TimeUnit timeUnit) {
+	private boolean needRefresh() {
+		if (refreshEvery() <= 0) {
+			return false;
+		}
 		long currentTime = System.currentTimeMillis();
-		return timeUnit.convert(currentTime - refreshedAt, timeUnit);
+		long elapsedTime = currentTime - lastRefreshedAt;
+		long elapsedMinutes = TimeUnit.MINUTES.convert(elapsedTime, TimeUnit.HOURS);
+		return elapsedMinutes >= refreshEvery();
 	}
 
 }
