@@ -4,8 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.ShowEpisode;
+import org.betarss.domain.Torrent;
 
-public class ShowUtils {
+public class Shows {
 
 	private final static Pattern SHOW_EPISODE_PATTERN = Pattern.compile("(.*) S0?(\\d+)E0?(\\d+)");
 	private final static Pattern SHOW_EPISODE_PATTERN_OLD_SCHOOL = Pattern.compile("(.*) (\\d+)x(\\d+)");
@@ -41,6 +42,14 @@ public class ShowUtils {
 			sb.append(word.substring(0, 1).toUpperCase() + word.substring(1));
 		}
 		return sb.toString();
+	}
+
+	public static ShowEpisode createShowEpisode(Torrent t) {
+		return createShowEpisode(t.title);
+	}
+
+	public static boolean sameShowEpisode(Torrent t1, Torrent t2) {
+		return createShowEpisode(t1).equals(createShowEpisode(t2));
 	}
 
 	public static ShowEpisode createShowEpisode(String torrentTile) {

@@ -1,6 +1,6 @@
 package org.betarss.provider;
 
-import static org.betarss.utils.FilterUtils.joinFilterAnd;
+import static org.betarss.utils.Filters.joinFilterAnd;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 
 // TODO : to prototype ?
-public class TorrentSearcher {
+public class SearchEngine {
 
 	private TorrentFilterer torrentFilterer;
 
@@ -21,14 +21,14 @@ public class TorrentSearcher {
 
 	private FilterComputor filterComputor;
 
-	public TorrentSearcher(TorrentFilterer torrentFilterer, Crawler crawler, FilterComputor filterComputor) {
+	public SearchEngine(TorrentFilterer torrentFilterer, Crawler crawler, FilterComputor filterComputor) {
 		this.torrentFilterer = torrentFilterer;
 		this.crawler = crawler;
 		this.filterComputor = filterComputor;
 	}
 
-	public List<Torrent<ShowEpisode>> doSearch(BetarssSearch search) throws IOException, FeedFilterException {
-		List<Torrent<ShowEpisode>> torrents = crawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
+	public List<Torrent> doSearch(BetarssSearch search) throws IOException, FeedFilterException {
+		List<Torrent> torrents = crawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
 		String filter = computeFilter(search);
 		return torrentFilterer.filter(torrents, filter);
 	}

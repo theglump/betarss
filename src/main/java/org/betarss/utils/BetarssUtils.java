@@ -9,6 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.betarss.exception.BetarssException;
+import org.betarss.infrastructure.HttpService;
+import org.betarss.infrastructure.HttpServiceImpl;
 
 public class BetarssUtils {
 
@@ -57,7 +59,7 @@ public class BetarssUtils {
 		}
 	}
 
-	public static Date parseDefaultDate(String toParse, String pattern, Locale locale) {
+	public static Date parseDate(String toParse, String pattern, Locale locale) {
 		try {
 			return new SimpleDateFormat(pattern, locale).parse(toParse);
 		} catch (java.text.ParseException e) {
@@ -65,4 +67,12 @@ public class BetarssUtils {
 		}
 	}
 
+	public static void log(String str) {
+		System.out.println(str);
+	}
+
+	public static void main(String[] argz) throws Exception {
+		HttpService u = new HttpServiceImpl();
+		log(u.dataAsString("http://www.cpasbien.pw/telechargement/bouboule-french-dvdrip-2014.torrent"));
+	}
 }

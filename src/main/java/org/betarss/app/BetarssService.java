@@ -10,7 +10,7 @@ import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.provider.TorrentSearcherProvider;
+import org.betarss.provider.SearchEngineProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +21,10 @@ public class BetarssService {
 	private ConfigurationService configurationService;
 
 	@Autowired
-	private TorrentSearcherProvider torrentSearcherProvider;
+	private SearchEngineProvider searchEngineProvider;
 
-	public List<Torrent<ShowEpisode>> searchTorrents(BetarssSearch search) throws IOException, FeedFilterException {
-		return torrentSearcherProvider.get(getProvider(search)).doSearch(search);
+	public List<Torrent> searchTorrents(BetarssSearch search) throws IOException, FeedFilterException {
+		return searchEngineProvider.get(getProvider(search)).doSearch(search);
 	}
 
 	private Provider getProvider(BetarssSearch search) {

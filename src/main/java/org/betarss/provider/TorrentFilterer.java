@@ -18,8 +18,8 @@ public class TorrentFilterer {
 	private static final Pattern expressionPattern = Pattern.compile("[\\!\\d\\w_\\- ]+", Pattern.CASE_INSENSITIVE);
 
 	@SuppressWarnings("unchecked")
-	public List<Torrent<ShowEpisode>> filter(List<Torrent<ShowEpisode>> torrents, String filter) throws FeedFilterException {
-		List<Torrent<ShowEpisode>> result = null;
+	public List<Torrent> filter(List<Torrent> torrents, String filter) throws FeedFilterException {
+		List<Torrent> result = null;
 
 		if (filter == null || filter.isEmpty()) {
 			return torrents;

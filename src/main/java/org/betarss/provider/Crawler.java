@@ -8,5 +8,5 @@ import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 
 public interface Crawler {
-	List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException;
+	List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException;
 }

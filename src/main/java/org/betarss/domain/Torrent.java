@@ -2,11 +2,10 @@ package org.betarss.domain;
 
 import java.util.Date;
 
-import org.betarss.utils.ShowUtils;
+import org.betarss.utils.Shows;
 
 // TODO P1 - Les services renvoient des List<Torrent> à la place des List<Feeditem>
-public class Torrent<C extends Content> {
-	public C content;
+public class Torrent {
 	public String title;
 	public String description;
 	public String magnet;
@@ -15,6 +14,6 @@ public class Torrent<C extends Content> {
 	public Date date;
 
 	public ShowEpisode getShowEpisode() {
-		return ShowUtils.createShowEpisode(title);
+		return Shows.createShowEpisode(title);
 	}
 }

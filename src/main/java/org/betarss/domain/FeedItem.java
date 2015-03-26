@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.betarss.utils.StringUtils;
+import org.betarss.utils.Strings;
 
 import com.google.common.base.Objects;
 
@@ -24,10 +24,10 @@ public class FeedItem {
 	private FeedItem() {
 	}
 
-	public FeedItem(Torrent<?> torrent, boolean magnet) {
+	public FeedItem(Torrent torrent, boolean magnet) {
 		this.title = torrent.title;
 		this.description = torrent.title;
-		this.location = magnet && StringUtils.isNotEmpty(torrent.magnet) ? torrent.magnet : torrent.url;
+		this.location = magnet && Strings.isNotEmpty(torrent.magnet) ? torrent.magnet : torrent.url;
 		this.filename = torrent.filename;
 		this.date = torrent.date;
 	}

@@ -19,10 +19,10 @@ public class Feed {
 
 	}
 
-	public Feed(String title, List<Torrent<ShowEpisode>> torrents, boolean magnet) {
+	public Feed(String title, List<Torrent> torrents, boolean magnet) {
 		this.title = title;
 		this.feedItems = Lists.newArrayList();
-		for (Torrent<?> torrent : torrents) {
+		for (Torrent torrent : torrents) {
 			this.feedItems.add(new FeedItem(torrent, magnet));
 		}
 	}

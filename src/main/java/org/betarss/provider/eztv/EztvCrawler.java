@@ -1,10 +1,7 @@
 package org.betarss.provider.eztv;
 
-import static org.betarss.utils.BetarssUtils.doTry;
-import static org.betarss.utils.BetarssUtils.parseDefaultDate;
-import static org.betarss.utils.ShowUtils.formatSeason;
-import static org.betarss.utils.ShowUtils.formatSeasonOldSchool;
-import static org.jsoup.Jsoup.connect;
+import static org.betarss.utils.Shows.formatSeason;
+import static org.betarss.utils.Shows.formatSeasonOldSchool;
 
 import java.io.IOException;
 import java.util.Date;
@@ -13,11 +10,12 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
+import org.betarss.infrastructure.HttpService;
+import org.betarss.infrastructure.HttpServiceImpl.Parameter;
 import org.betarss.provider.Crawler;
-import org.betarss.utils.BetarssUtils.Function;
+import org.betarss.utils.BetarssUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,46 +38,39 @@ public class EztvCrawler implements Crawler {
 	private static final int URLS_HTML = 10;
 
 	@Autowired
+	private HttpService httpService;
+
+	@Autowired
 	private EztvCache eztvCache;
 
 	@Override
-	public List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+	public List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
 		String searchString = searchString(show, season);
 		return getTorrents(html(show), entryPattern(searchString));
 	}
 
 	private String html(final String show) {
-		return doTry(FETCH_HTML_RETRY_NUMBER, new Function<String>() {
-
-			@Override
-			public String doCall() throws Exception {
-				if (show != null) {
-					return connect(SEARCH_URL).userAgent("Mozilla/5.0").data("SearchString", getTvShowId(show).toString()).post().html();
-				}
-				return connect(SEARCH_URL).userAgent("Mozilla/5.0").post().html();
-
-			}
-
-		});
+		String showId = getTvShowId(show).toString();
+		return httpService.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
 	}
 
-	private List<Torrent<ShowEpisode>> getTorrents(String html, Pattern pattern) throws IOException {
-		List<Torrent<ShowEpisode>> results = Lists.newArrayList();
+	private List<Torrent> getTorrents(String html, Pattern pattern) throws IOException {
+		List<Torrent> results = Lists.newArrayList();
 		Matcher matcher = pattern.matcher(html);
 		Date date = null;
 		while (matcher.find()) {
 			if (matcher.group(DATE) != null) {
 				date = parseDate(matcher);
 			} else {
-				Torrent<ShowEpisode> torrent = getTorrent(matcher, date);
+				Torrent torrent = getTorrent(matcher, date);
 				results.add(torrent);
 			}
 		}
 		return results;
 	}
 
-	private Torrent<ShowEpisode> getTorrent(Matcher matcher, Date date) {
-		Torrent<ShowEpisode> torrent = new Torrent<ShowEpisode>();
+	private Torrent getTorrent(Matcher matcher, Date date) {
+		Torrent torrent = new Torrent();
 		torrent.title = matcher.group(TITLE);
 		torrent.description = torrent.title;
 		torrent.filename = filename(torrent);
@@ -107,11 +98,11 @@ public class EztvCrawler implements Crawler {
 	}
 
 	private Date parseDate(Matcher matcher) {
-		return parseDefaultDate(matcher.group(DATE), "dd, MMMMM, yyyy", Locale.US);
+		return BetarssUtils.parseDate(matcher.group(DATE), "dd, MMMMM, yyyy", Locale.US);
 	}
 
-	private String filename(Torrent<ShowEpisode> torrent) {
-		return torrent.title.replace(" ", ".") + ".mp4";
+	private String filename(Torrent torrent) {
+		return torrent.title.replace(" ", ".").replaceAll("\\.\\(.*\\)", "") + ".mp4";
 	}
 
 	private Integer getTvShowId(String showName) {

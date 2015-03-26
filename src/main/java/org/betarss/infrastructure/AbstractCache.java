@@ -1,12 +1,14 @@
 package org.betarss.infrastructure;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
 
 public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
-	Map<K, V> cache;
+	private long refreshedAt;
+	private Map<K, V> cache;
 
 	public AbstractCache() {
 		if (!lazy()) {
@@ -16,7 +18,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
 	@Override
 	public V get(K key) {
-		if (cache == null && lazy()) {
+		if (needRefresh() || (cache == null && lazy())) {
 			internalInit();
 		}
 		return cache.get(key);
@@ -28,6 +30,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 	}
 
 	private void internalInit() {
+		refreshedAt = System.currentTimeMillis();
 		cache = Maps.newConcurrentMap();
 		init();
 	}
@@ -37,6 +40,15 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
 	protected boolean lazy() {
 		return false;
+	}
+
+	protected boolean needRefresh() {
+		return false;
+	}
+
+	protected long timeSinceRefresh(TimeUnit timeUnit) {
+		long currentTime = System.currentTimeMillis();
+		return timeUnit.convert(currentTime - refreshedAt, timeUnit);
 	}
 
 }

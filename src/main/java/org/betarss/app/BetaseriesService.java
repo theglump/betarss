@@ -1,12 +1,9 @@
 package org.betarss.app;
 
-import static org.betarss.utils.ShowUtils.createShowEpisode;
+import static org.betarss.utils.Shows.createShowEpisode;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -18,17 +15,16 @@ import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
 import org.betarss.domain.Language;
 import org.betarss.domain.Provider;
-import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.provider.TorrentSearcher;
-import org.betarss.provider.TorrentSearcherProvider;
+import org.betarss.infrastructure.HttpService;
+import org.betarss.provider.SearchEngine;
+import org.betarss.provider.SearchEngineProvider;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
-import org.betarss.utils.ShowUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.select.Elements;
+import org.betarss.utils.Shows;
+import org.betarss.utils.Torrents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,20 +38,23 @@ public class BetaseriesService {
 	private static final Pattern SEASON_PATTERN = Pattern.compile("(.*) S0?(\\d+).*");
 
 	@Autowired
-	private TorrentSearcherProvider torrentSearcherProvider;
+	private SearchEngineProvider searchEngineProvider;
 
 	@Autowired
 	private ConfigurationService configurationService;
 
-	public List<Torrent<ShowEpisode>> getTorrents(final BetaseriesSearch betaseriesSearch) throws IOException, FeedFilterException {
-		final List<Torrent<ShowEpisode>> results = new CopyOnWriteArrayList<Torrent<ShowEpisode>>();
+	@Autowired
+	private HttpService httpService;
+
+	public List<Torrent> getTorrents(final BetaseriesSearch betaseriesSearch) throws IOException, FeedFilterException {
+		final List<Torrent> results = new CopyOnWriteArrayList<Torrent>();
 		Map<String, List<String>> itemsByShow = itemByShows(betaseriesSearch);
 		List<Procedure> procedures = getProcedures(betaseriesSearch, results, itemsByShow);
 		BetarssUtils.multiThreadCalls(procedures, 120);
-		return orderResults(results);
+		return Torrents.sort(results);
 	}
 
-	private List<Procedure> getProcedures(final BetaseriesSearch betaseriesSearch, final List<Torrent<ShowEpisode>> results,
+	private List<Procedure> getProcedures(final BetaseriesSearch betaseriesSearch, final List<Torrent> results,
 			Map<String, List<String>> entriesByShow) {
 		List<Procedure> procedures = Lists.newArrayList();
 
@@ -68,7 +67,7 @@ public class BetaseriesService {
 				public void doCall() throws Exception {
 					BetarssSearch betarssSearch = createBetarssSearch(betaseriesSearch, entries.get(0));
 					for (String entry : entries) {
-						for (Torrent<ShowEpisode> torrent : getFeedSearcher(betaseriesSearch).doSearch(betarssSearch)) {
+						for (Torrent torrent : getSearchEngine(betaseriesSearch).doSearch(betarssSearch)) {
 							if (torrent.getShowEpisode().equals(createShowEpisode(entry))) {
 								results.add(torrent);
 							}
@@ -83,19 +82,8 @@ public class BetaseriesService {
 
 	private BetarssSearch createBetarssSearch(final BetaseriesSearch search, String item) {
 		BetarssSearch betarssSearch = new BetarssSearch(search);
-		betarssSearch.showEpisode = ShowUtils.createShowEpisode(item);
+		betarssSearch.showEpisode = Shows.createShowEpisode(item);
 		return betarssSearch;
-	}
-
-	private List<Torrent<ShowEpisode>> orderResults(List<Torrent<ShowEpisode>> results) {
-		Collections.sort(results, new Comparator<Torrent<ShowEpisode>>() {
-
-			@Override
-			public int compare(Torrent<ShowEpisode> e1, Torrent<ShowEpisode> e2) {
-				return e1.title.compareTo(e2.title);
-			}
-		});
-		return results;
 	}
 
 	private Map<String, List<String>> itemByShows(final BetaseriesSearch search) throws IOException {
@@ -114,11 +102,8 @@ public class BetaseriesService {
 
 	private List<String> getBetaseriesItems(String login) throws IOException {
 		List<String> items = new ArrayList<String>();
-		Elements elementsByTag = Jsoup.connect(BETASERIES_FEED_URL + login).get().getElementsByTag("title");
-		Iterator<org.jsoup.nodes.Element> iterator = elementsByTag.iterator();
-		iterator.next(); // skip global title
-		while (iterator.hasNext()) {
-			String rawTitle = iterator.next().text();
+		List<String> titles = httpService.getTags(BETASERIES_FEED_URL + login, "title");
+		for (String rawTitle : titles.subList(1, titles.size())) {
 			items.add(rawTitle.substring(9, rawTitle.length() - 3));
 		}
 		return items;
@@ -129,9 +114,9 @@ public class BetaseriesService {
 		return m.find() ? m.group(1) : "";
 	}
 
-	private TorrentSearcher getFeedSearcher(BaseSearch betarssSearch) {
+	private SearchEngine getSearchEngine(BaseSearch betarssSearch) {
 		Provider provider = getProvider(betarssSearch);
-		return torrentSearcherProvider.get(provider);
+		return searchEngineProvider.get(provider);
 	}
 
 	private Provider getProvider(BaseSearch baseSearch) {

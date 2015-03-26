@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
+import org.betarss.infrastructure.HttpService;
+import org.betarss.infrastructure.HttpServiceImpl.Parameter;
 import org.betarss.provider.Crawler;
-import org.betarss.utils.ShowUtils;
-import org.jsoup.Jsoup;
+import org.betarss.utils.Shows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -29,22 +30,25 @@ public class CpasbienCrawler implements Crawler {
 	private static final int DATE = 3;
 	private static final int TITLE = 4;
 
+	@Autowired
+	private HttpService httpService;
+
 	@Override
-	public List<Torrent<ShowEpisode>> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
+	public List<Torrent> doCrawl(String show, Integer season) throws IOException, FeedFilterException {
 		if (show == null) {
 			return getFeed();
 		}
 		String html = fetchHtml(show, season);
-		List<Torrent<ShowEpisode>> torrents = getFeedItems(html);
+		List<Torrent> torrents = getFeedItems(html);
 		return torrents;
 	}
 
-	public List<Torrent<ShowEpisode>> getFeed() throws IOException {
+	public List<Torrent> getFeed() throws IOException {
 		return getFeedItems(fetchHtml());
 	}
 
-	private List<Torrent<ShowEpisode>> getFeedItems(String html) throws IOException {
-		List<Torrent<ShowEpisode>> torrents = Lists.newArrayList();
+	private List<Torrent> getFeedItems(String html) throws IOException {
+		List<Torrent> torrents = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
 		while (m.find()) {
 			torrents.add(createFeed(m));
@@ -52,8 +56,8 @@ public class CpasbienCrawler implements Crawler {
 		return torrents;
 	}
 
-	private Torrent<ShowEpisode> createFeed(Matcher m) {
-		Torrent<ShowEpisode> torrent = new Torrent<ShowEpisode>();
+	private Torrent createFeed(Matcher m) {
+		Torrent torrent = new Torrent();
 		torrent.title = m.group(TITLE);
 		torrent.description = m.group(TITLE);
 		torrent.url = getLocation(m.group(TORRENT_NAME));
@@ -62,12 +66,12 @@ public class CpasbienCrawler implements Crawler {
 	}
 
 	private String fetchHtml() throws IOException {
-		return Jsoup.connect(LAST_ITEMS_URL).userAgent("Mozilla").get().html();
+		return httpService.get(LAST_ITEMS_URL);
 	}
 
 	private String fetchHtml(String showName, Integer season) throws IOException {
 		String searchString = getSearchString(showName, season);
-		return Jsoup.connect(SEARCH_URL).userAgent("Mozilla").data("champ_recherche", searchString).post().html();
+		return httpService.post(SEARCH_URL, Parameter.create("champ_recherche", searchString));
 	}
 
 	private Date parseDate(String date) {
@@ -83,7 +87,7 @@ public class CpasbienCrawler implements Crawler {
 	}
 
 	private String getSearchString(String showName, Integer season) {
-		return showName + " " + ShowUtils.formatSeason(season);
+		return showName + " " + Shows.formatSeason(season);
 	}
 
 }

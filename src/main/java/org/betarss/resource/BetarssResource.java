@@ -1,6 +1,6 @@
 package org.betarss.resource;
 
-import static org.betarss.utils.ShowUtils.formatEpisodeUpperCase;
+import static org.betarss.utils.Shows.formatEpisodeUpperCase;
 
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		List<Torrent<ShowEpisode>> torrents = betarssService.searchTorrents(search);
+		List<Torrent> torrents = betarssService.searchTorrents(search);
 
 		return produce(mode, torrents, feedTitle(search), magnet);
 	}
@@ -110,7 +110,7 @@ public class BetarssResource {
 		search.magnet = magnet;
 		search.date = date;
 
-		List<Torrent<ShowEpisode>> torrents = betaseriesService.getTorrents(search);
+		List<Torrent> torrents = betaseriesService.getTorrents(search);
 
 		return produce(mode, torrents, feedTitle(search), magnet);
 	}
@@ -121,7 +121,7 @@ public class BetarssResource {
 		return null;
 	}
 
-	private HttpEntity<byte[]> produce(String mode, List<Torrent<ShowEpisode>> torrents, String title, boolean magnet) throws Exception {
+	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, String title, boolean magnet) throws Exception {
 		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(title, torrents, magnet);
 	}
 

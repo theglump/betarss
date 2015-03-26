@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TorrentSearcherProvider {
+public class SearchEngineProvider {
 
 	@Autowired
 	private TorrentFilterer torrentFilterer;
@@ -33,7 +33,7 @@ public class TorrentSearcherProvider {
 	@Autowired
 	private DefaultFilterComputor defaultFilterComputor;
 
-	public TorrentSearcher get(Provider provider) {
+	public SearchEngine get(Provider provider) {
 		switch (provider) {
 		case EZTV:
 			return createEztvFeedSearcher();
@@ -47,20 +47,20 @@ public class TorrentSearcherProvider {
 		throw new IllegalArgumentException("Provider " + provider + " is not supported");
 	}
 
-	private TorrentSearcher createCpasbienFeedSearcher() {
-		return new TorrentSearcher(torrentFilterer, cpasbienCrawler, cpasbienFilterComputor);
+	private SearchEngine createCpasbienFeedSearcher() {
+		return new SearchEngine(torrentFilterer, cpasbienCrawler, cpasbienFilterComputor);
 	}
 
-	private TorrentSearcher createEztvFeedSearcher() {
-		return new TorrentSearcher(torrentFilterer, eztvCrawler, defaultFilterComputor);
+	private SearchEngine createEztvFeedSearcher() {
+		return new SearchEngine(torrentFilterer, eztvCrawler, defaultFilterComputor);
 	}
 
-	private TorrentSearcher createKickAssFeedSearcher() {
-		return new TorrentSearcher(torrentFilterer, kickassCrawler, defaultFilterComputor);
+	private SearchEngine createKickAssFeedSearcher() {
+		return new SearchEngine(torrentFilterer, kickassCrawler, defaultFilterComputor);
 	}
 
-	private TorrentSearcher createShowRssFeedSearcher() {
-		return new TorrentSearcher(torrentFilterer, showRssCrawler, defaultFilterComputor);
+	private SearchEngine createShowRssFeedSearcher() {
+		return new SearchEngine(torrentFilterer, showRssCrawler, defaultFilterComputor);
 	}
 
 }

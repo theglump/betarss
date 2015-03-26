@@ -1,6 +1,6 @@
 package org.betarss.utils;
 
-public class FilterUtils {
+public class Filters {
 
 	public static String joinFilterAnd(String... conditions) {
 		StringBuilder result = new StringBuilder();
