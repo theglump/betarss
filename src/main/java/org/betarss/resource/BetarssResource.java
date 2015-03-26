@@ -43,7 +43,7 @@ public class BetarssResource {
 	public HttpEntity<byte[]> feed( //
 			@RequestParam(required = true) String show, //
 			@RequestParam(required = true) Integer season, //
-			@RequestParam(required = false) String language, //
+			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
@@ -74,7 +74,7 @@ public class BetarssResource {
 
 	@RequestMapping(value = "last", method = RequestMethod.GET)
 	public HttpEntity<byte[]> last( //
-			@RequestParam(required = false) String language, //
+			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
@@ -87,7 +87,7 @@ public class BetarssResource {
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
 	public HttpEntity<byte[]> betaseries( //
 			@RequestParam(required = true) String login, //
-			@RequestParam(required = false) String language, //
+			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
