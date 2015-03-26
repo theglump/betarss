@@ -1,4 +1,4 @@
-package org.betarss.infrastructure;
+package org.betarss.infrastructure.cache;
 
 public interface Cache<K, V> {
 

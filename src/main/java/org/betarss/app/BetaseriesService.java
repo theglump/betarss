@@ -18,7 +18,7 @@ import org.betarss.domain.Provider;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.infrastructure.HttpService;
+import org.betarss.infrastructure.http.HttpService;
 import org.betarss.provider.SearchEngine;
 import org.betarss.provider.SearchEngineProvider;
 import org.betarss.utils.BetarssUtils;
@@ -26,6 +26,7 @@ import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.Shows;
 import org.betarss.utils.Torrents;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -44,6 +45,7 @@ public class BetaseriesService {
 	private ConfigurationService configurationService;
 
 	@Autowired
+	@Qualifier("httpService")
 	private HttpService httpService;
 
 	public List<Torrent> getTorrents(final BetaseriesSearch betaseriesSearch) throws IOException, FeedFilterException {

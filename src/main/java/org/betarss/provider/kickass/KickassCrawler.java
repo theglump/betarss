@@ -10,13 +10,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.HttpService;
-import org.betarss.infrastructure.HttpServiceImpl.Parameter;
+import org.betarss.infrastructure.http.HttpService;
+import org.betarss.infrastructure.http.NetHttpService.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.Shows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -42,6 +43,7 @@ public class KickassCrawler implements Crawler {
 	private static final int RAW_TITLE = 9;
 
 	@Autowired
+	@Qualifier("httpService")
 	private HttpService httpService;
 
 	@Override

@@ -1,8 +1,8 @@
-package org.betarss.infrastructure;
+package org.betarss.infrastructure.http;
 
 import java.util.List;
 
-import org.betarss.infrastructure.HttpServiceImpl.Parameter;
+import org.betarss.infrastructure.http.NetHttpService.Parameter;
 
 public interface HttpService {
 

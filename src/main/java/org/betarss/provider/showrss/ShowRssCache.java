@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.exception.BetarssException;
-import org.betarss.infrastructure.AbstractCache;
+import org.betarss.infrastructure.cache.AbstractCache;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 

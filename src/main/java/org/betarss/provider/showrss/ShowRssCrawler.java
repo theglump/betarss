@@ -3,10 +3,11 @@ package org.betarss.provider.showrss;
 import java.util.List;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.HttpService;
+import org.betarss.infrastructure.http.HttpService;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.RssParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,7 @@ public class ShowRssCrawler implements Crawler {
 	private ShowRssCache showRssCache;
 
 	@Autowired
+	@Qualifier("httpService")
 	private HttpService HttpService;
 
 	@Override

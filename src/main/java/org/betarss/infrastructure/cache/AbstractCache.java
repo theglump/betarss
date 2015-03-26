@@ -1,4 +1,4 @@
-package org.betarss.infrastructure;
+package org.betarss.infrastructure.cache;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

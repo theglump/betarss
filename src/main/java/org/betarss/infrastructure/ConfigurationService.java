@@ -26,4 +26,8 @@ public class ConfigurationService {
 		return false;
 	}
 
+	public String getHttpSerializationDirectory() {
+		return "C:/Work/Workspaces/main/betarss-mock/";
+	}
+
 }

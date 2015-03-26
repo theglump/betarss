@@ -1,4 +1,4 @@
-package org.betarss.infrastructure;
+package org.betarss.infrastructure.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.betarss.exception.BetarssException;
+import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Function;
+import org.betarss.utils.HttpUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Charsets;
@@ -22,14 +25,22 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 @Service
-public class HttpServiceImpl implements HttpService {
+public class NetHttpService implements HttpService {
 
 	private static final String HTTP_USER_AGENT = "Mozilla/5.0";
+	private static final boolean SERIALIZATION = false;
+
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Override
 	public String get(String url) {
 		try {
-			return getDocument(url).html();
+			String html = getDocument(url).html();
+			if (SERIALIZATION) {
+				serialize(url, html);
+			}
+			return html;
 		} catch (IOException e) {
 			throw new BetarssException(e);
 		}
@@ -41,6 +52,9 @@ public class HttpServiceImpl implements HttpService {
 		try {
 			for (Element element : getDocument(url).getElementsByTag(tagName)) {
 				results.add(element.text());
+			}
+			if (SERIALIZATION) {
+				serializeTag(url, tagName, results);
 			}
 		} catch (IOException e) {
 			throw new BetarssException(e);
@@ -61,7 +75,11 @@ public class HttpServiceImpl implements HttpService {
 
 	@Override
 	public String post(final String url, final Parameter... parameters) {
-		return postDocument(url, parameters).html();
+		String html = postDocument(url, parameters).html();
+		if (SERIALIZATION) {
+			serialize(url, html, parameters);
+		}
+		return html;
 	}
 
 	@Override
@@ -81,7 +99,11 @@ public class HttpServiceImpl implements HttpService {
 		try {
 			HttpURLConnection http = openConnection(url);
 			InputStream input = http.getInputStream();
-			return ByteStreams.toByteArray(input);
+			byte[] data = ByteStreams.toByteArray(input);
+			if (SERIALIZATION) {
+				serialize(url, data);
+			}
+			return data;
 		} catch (MalformedURLException e) {
 			throw new BetarssException("error during data fetching for " + url, e);
 		} catch (IOException e) {
@@ -127,6 +149,26 @@ public class HttpServiceImpl implements HttpService {
 			return connection.post();
 		} catch (IOException e) {
 			throw new BetarssException(e);
+		}
+	}
+
+	private void serialize(String url, byte[] data) {
+		serialize(url, new String(data, Charsets.UTF_8), (Parameter[]) null);
+	}
+
+	private void serialize(String url, String html, Parameter... parameters) {
+		try {
+			HttpUtils.serializeRequest(configurationService.getHttpSerializationDirectory(), url, html, parameters);
+		} catch (IOException e) {
+			throw new BetarssException("error during serialization " + url, e);
+		}
+	}
+
+	private void serializeTag(String url, String tagName, List<String> items) {
+		try {
+			HttpUtils.serializeTagRequest(configurationService.getHttpSerializationDirectory(), url, tagName, items);
+		} catch (IOException e) {
+			throw new BetarssException("error during serialization " + url, e);
 		}
 	}
 
