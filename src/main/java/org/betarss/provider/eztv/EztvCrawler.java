@@ -10,8 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.http.HttpService;
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.HttpClient;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +39,8 @@ public class EztvCrawler implements Crawler {
 	private static boolean AVOID_ZOINK_TORRENT = true;
 
 	@Autowired
-	@Qualifier("httpService")
-	private HttpService httpService;
+	@Qualifier("httpClient")
+	private HttpClient httpClient;
 
 	@Autowired
 	private EztvCache eztvCache;
@@ -52,7 +52,7 @@ public class EztvCrawler implements Crawler {
 
 	private String html(final String show) {
 		String showId = getTvShowId(show).toString();
-		return httpService.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
+		return httpClient.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
 	}
 
 	private List<Torrent> getTorrents(String html, Pattern pattern) {

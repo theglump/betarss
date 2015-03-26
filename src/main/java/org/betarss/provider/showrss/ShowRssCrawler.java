@@ -3,7 +3,7 @@ package org.betarss.provider.showrss;
 import java.util.List;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.http.HttpService;
+import org.betarss.infrastructure.http.HttpClient;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.RssParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,8 @@ public class ShowRssCrawler implements Crawler {
 	private ShowRssCache showRssCache;
 
 	@Autowired
-	@Qualifier("httpService")
-	private HttpService HttpService;
+	@Qualifier("httpClient")
+	private HttpClient HttpClient;
 
 	@Override
 	public List<Torrent> doCrawl(String show, Integer season) {
@@ -27,7 +27,7 @@ public class ShowRssCrawler implements Crawler {
 
 	private String getFeed(String show) {
 		String url = getFeedUrl(show);
-		return HttpService.dataAsString(url);
+		return HttpClient.dataAsString(url);
 	}
 
 	private String getFeedUrl(String show) {

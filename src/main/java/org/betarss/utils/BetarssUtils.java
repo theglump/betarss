@@ -9,8 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.betarss.exception.BetarssException;
-import org.betarss.infrastructure.http.NetHttpService;
-import org.betarss.infrastructure.http.HttpService;
+import org.betarss.infrastructure.http.NetHttpClient;
+import org.betarss.infrastructure.http.HttpClient;
 
 public class BetarssUtils {
 
@@ -72,7 +72,7 @@ public class BetarssUtils {
 	}
 
 	public static void main(String[] argz) throws Exception {
-		HttpService u = new NetHttpService();
+		HttpClient u = new NetHttpClient();
 		log(u.dataAsString("http://www.cpasbien.pw/telechargement/bouboule-french-dvdrip-2014.torrent"));
 	}
 }

@@ -7,8 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.http.HttpService;
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.HttpClient;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.Shows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,8 @@ public class CpasbienCrawler implements Crawler {
 	private static final int TITLE = 4;
 
 	@Autowired
-	@Qualifier("httpService")
-	private HttpService httpService;
+	@Qualifier("httpClient")
+	private HttpClient httpClient;
 
 	@Override
 	public List<Torrent> doCrawl(String show, Integer season) {
@@ -66,12 +66,12 @@ public class CpasbienCrawler implements Crawler {
 	}
 
 	private String fetchHtml() {
-		return httpService.get(LAST_ITEMS_URL);
+		return httpClient.get(LAST_ITEMS_URL);
 	}
 
 	private String fetchHtml(String showName, Integer season) {
 		String searchString = getSearchString(showName, season);
-		return httpService.post(SEARCH_URL, Parameter.create("champ_recherche", searchString));
+		return httpClient.post(SEARCH_URL, Parameter.create("champ_recherche", searchString));
 	}
 
 	private Date parseDate(String date) {

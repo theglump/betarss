@@ -15,7 +15,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.betarss.exception.BetarssException;
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -72,10 +72,7 @@ public class HttpUtils {
 		Matcher m = p.matcher(url);
 		if (m.find()) {
 			String baseUrl = format(m.group(1));
-			String pageUrl = "default";
-			if (m.groupCount() == 4) {
-				pageUrl = format(m.group(4));
-			}
+			String pageUrl = Strings.defaultString(format(m.group(4)), "root");
 			if (parameters != null) {
 				for (Parameter parameter : parameters) {
 					pageUrl += parameter.getName() + "_" + format(parameter.getValue());
@@ -88,6 +85,9 @@ public class HttpUtils {
 	}
 
 	private static String format(String elem) {
+		if (Strings.isEmpty(elem)) {
+			return "";
+		}
 		return elem.replaceAll("(\\.|\\/| )", "_");
 	}
 

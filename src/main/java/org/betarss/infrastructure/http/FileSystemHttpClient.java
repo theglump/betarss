@@ -7,13 +7,13 @@ import java.util.List;
 
 import org.betarss.exception.BetarssException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FileSystemHttpService implements HttpService {
+public class FileSystemHttpClient implements HttpClient {
 
 	@Autowired
 	private ConfigurationService configurationService;

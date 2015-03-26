@@ -10,8 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.betarss.domain.Torrent;
-import org.betarss.infrastructure.http.HttpService;
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.HttpClient;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
@@ -43,8 +43,8 @@ public class KickassCrawler implements Crawler {
 	private static final int RAW_TITLE = 9;
 
 	@Autowired
-	@Qualifier("httpService")
-	private HttpService httpService;
+	@Qualifier("httpClient")
+	private HttpClient httpClient;
 
 	@Override
 	public List<Torrent> doCrawl(String show, Integer season) {
@@ -96,7 +96,7 @@ public class KickassCrawler implements Crawler {
 	}
 
 	private Date getDate(String torrentPageUrl) {
-		String html = httpService.get("https://kickass.to" + torrentPageUrl);
+		String html = httpClient.get("https://kickass.to" + torrentPageUrl);
 		Matcher dateMatcher = DATE_PATTERN.matcher(html);
 		if (dateMatcher.find()) {
 			return BetarssUtils.parseDate(dateMatcher.group(1), "MMM dd, yyyy", Locale.US);
@@ -106,7 +106,7 @@ public class KickassCrawler implements Crawler {
 
 	private String fetchHtml() {
 		try {
-			return httpService.get(LAST_ITEMS_URLS);
+			return httpClient.get(LAST_ITEMS_URLS);
 		} catch (Exception e) {
 		}
 		return "";
@@ -115,7 +115,7 @@ public class KickassCrawler implements Crawler {
 	private String fetchHtml(String showName, Integer season) {
 		try {
 			String searchString = getSearchString(showName, season);
-			return httpService.post(SEARCH_URL, Parameter.create("q", searchString));
+			return httpClient.post(SEARCH_URL, Parameter.create("q", searchString));
 		} catch (Exception e) {
 		}
 		return "";

@@ -2,9 +2,9 @@ package org.betarss.infrastructure.http;
 
 import java.util.List;
 
-import org.betarss.infrastructure.http.NetHttpService.Parameter;
+import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 
-public interface HttpService {
+public interface HttpClient {
 
 	String get(String url);
 

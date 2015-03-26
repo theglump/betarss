@@ -18,7 +18,7 @@ import org.betarss.domain.Provider;
 import org.betarss.domain.Torrent;
 import org.betarss.exception.FeedFilterException;
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.infrastructure.http.HttpService;
+import org.betarss.infrastructure.http.HttpClient;
 import org.betarss.provider.SearchEngine;
 import org.betarss.provider.SearchEngineProvider;
 import org.betarss.utils.BetarssUtils;
@@ -45,8 +45,8 @@ public class BetaseriesService {
 	private ConfigurationService configurationService;
 
 	@Autowired
-	@Qualifier("httpService")
-	private HttpService httpService;
+	@Qualifier("httpClient")
+	private HttpClient httpClient;
 
 	public List<Torrent> getTorrents(final BetaseriesSearch betaseriesSearch) throws IOException, FeedFilterException {
 		final List<Torrent> results = new CopyOnWriteArrayList<Torrent>();
@@ -104,7 +104,7 @@ public class BetaseriesService {
 
 	private List<String> getBetaseriesItems(String login) throws IOException {
 		List<String> items = new ArrayList<String>();
-		List<String> titles = httpService.getTags(BETASERIES_FEED_URL + login, "title");
+		List<String> titles = httpClient.getTags(BETASERIES_FEED_URL + login, "title");
 		for (String rawTitle : titles.subList(1, titles.size())) {
 			items.add(rawTitle.substring(9, rawTitle.length() - 3));
 		}

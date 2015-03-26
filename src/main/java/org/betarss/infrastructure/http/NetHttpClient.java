@@ -25,10 +25,10 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 @Service
-public class NetHttpService implements HttpService {
+public class NetHttpClient implements HttpClient {
 
 	private static final String HTTP_USER_AGENT = "Mozilla/5.0";
-	private static final boolean SERIALIZATION = false;
+	private static final boolean SERIALIZATION = true;
 
 	@Autowired
 	private ConfigurationService configurationService;
