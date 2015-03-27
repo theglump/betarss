@@ -1,5 +1,7 @@
 package org.betarss.infrastructure.cache;
 
+import static java.lang.System.currentTimeMillis;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -10,7 +12,10 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 	private long lastRefreshedAt;
 	private Map<K, V> cache;
 
+	private final Object mutex;
+
 	public AbstractCache() {
+		mutex = this;
 		if (!lazy()) {
 			internalInit();
 		}
@@ -30,7 +35,9 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 	}
 
 	private void internalInit() {
-		lastRefreshedAt = System.currentTimeMillis();
+		if (refreshEvery() > 0) {
+			setLastRefreshedAt(System.currentTimeMillis());
+		}
 		cache = Maps.newConcurrentMap();
 		init();
 	}
@@ -53,10 +60,22 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 		if (refreshEvery() <= 0) {
 			return false;
 		}
-		long currentTime = System.currentTimeMillis();
-		long elapsedTime = currentTime - lastRefreshedAt;
-		long elapsedMinutes = TimeUnit.MINUTES.convert(elapsedTime, TimeUnit.HOURS);
+		long elapsedMillis = currentTimeMillis() - getLastRefreshedAt();
+		long elapsedMinutes = TimeUnit.MINUTES.convert(elapsedMillis, TimeUnit.HOURS);
 		return elapsedMinutes >= refreshEvery();
+	}
+
+	// Fix : Those mutators should be in a dedicated class
+	public long getLastRefreshedAt() {
+		synchronized (mutex) {
+			return lastRefreshedAt;
+		}
+	}
+
+	public void setLastRefreshedAt(long lastRefreshedAt) {
+		synchronized (mutex) {
+			this.lastRefreshedAt = lastRefreshedAt;
+		}
 	}
 
 }
