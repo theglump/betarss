@@ -37,7 +37,7 @@ public class BetarssRessourceConnectedTest {
 
 	@Test
 	public void search_matches_with_EN_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", "hd", null, true, false, "rss");
+		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", "720p", null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language"));
 	}
 
