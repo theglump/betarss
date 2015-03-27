@@ -12,7 +12,6 @@ import org.betarss.exception.BetarssException;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Function;
-import org.betarss.utils.HttpUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,6 +31,9 @@ public class NetHttpClient implements HttpClient {
 
 	@Autowired
 	private ConfigurationService configurationService;
+
+	@Autowired
+	private ResponseSerializationHelper responseSerializationHelper;
 
 	@Override
 	public String get(String url) {
@@ -158,7 +160,7 @@ public class NetHttpClient implements HttpClient {
 
 	private void serialize(String url, String html, Parameter... parameters) {
 		try {
-			HttpUtils.serializeRequest(configurationService.getHttpSerializationDirectory(), url, html, parameters);
+			responseSerializationHelper.serialize(url, html, parameters);
 		} catch (IOException e) {
 			throw new BetarssException("error during serialization " + url, e);
 		}
@@ -166,7 +168,7 @@ public class NetHttpClient implements HttpClient {
 
 	private void serializeTag(String url, String tagName, List<String> items) {
 		try {
-			HttpUtils.serializeTagRequest(configurationService.getHttpSerializationDirectory(), url, tagName, items);
+			responseSerializationHelper.serializeRequestForHtmlTags(url, tagName, items);
 		} catch (IOException e) {
 			throw new BetarssException("error during serialization " + url, e);
 		}

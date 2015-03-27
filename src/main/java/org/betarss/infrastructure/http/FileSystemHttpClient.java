@@ -1,14 +1,11 @@
 package org.betarss.infrastructure.http;
 
-import static org.betarss.utils.HttpUtils.deserializeRequest;
-
 import java.io.IOException;
 import java.util.List;
 
 import org.betarss.exception.BetarssException;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.infrastructure.http.NetHttpClient.Parameter;
-import org.betarss.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +14,9 @@ public class FileSystemHttpClient implements HttpClient {
 
 	@Autowired
 	private ConfigurationService configurationService;
+
+	@Autowired
+	private ResponseSerializationHelper serializer;
 
 	@Override
 	public String get(String url, int maxTime) {
@@ -41,7 +41,7 @@ public class FileSystemHttpClient implements HttpClient {
 	@Override
 	public List<String> getTags(String url, String tagName) {
 		try {
-			return HttpUtils.deserializeTagRequest(configurationService.getHttpSerializationDirectory(), url, tagName);
+			return serializer.deserializeRequestForHtmlTags(url, tagName);
 		} catch (IOException e) {
 			throw new BetarssException(e);
 		}
@@ -63,7 +63,7 @@ public class FileSystemHttpClient implements HttpClient {
 
 	private String deserializedRequest(String url, Parameter... parameters) {
 		try {
-			return deserializeRequest(configurationService.getHttpSerializationDirectory(), url, parameters);
+			return serializer.deserializeRequestResult(url, parameters);
 		} catch (IOException e) {
 			throw new BetarssException(e);
 		}

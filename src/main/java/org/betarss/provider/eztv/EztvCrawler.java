@@ -36,7 +36,7 @@ public class EztvCrawler implements Crawler {
 	private static final int MAGNET = 8;
 	private static final int URLS_HTML = 10;
 
-	private static boolean AVOID_ZOINK_TORRENT = true;
+	private static boolean AVOID_ZOINK_TORRENT = false;
 
 	@Autowired
 	@Qualifier("httpClient")

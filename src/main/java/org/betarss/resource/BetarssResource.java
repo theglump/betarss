@@ -6,16 +6,17 @@ import java.util.List;
 
 import org.betarss.app.BetarssService;
 import org.betarss.app.BetaseriesService;
+import org.betarss.domain.BaseSearch;
 import org.betarss.domain.BetarssSearch;
 import org.betarss.domain.BetaseriesSearch;
 import org.betarss.domain.Language;
 import org.betarss.domain.Mode;
 import org.betarss.domain.Provider;
 import org.betarss.domain.Quality;
+import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.producer.ProducerProvider;
-import org.betarss.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
@@ -51,25 +52,12 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		//TODO : P2 - builder pour feed search avec validation
-		BetarssSearch search = new BetarssSearch();
-		search.showEpisode.show = show;
-		search.showEpisode.season = season;
-		if (provider != null) {
-			search.providers.add(Provider.parse(provider));
-		} else {
-			search.languages.add(Language.parse(language));
-		}
-		if (quality != null) {
-			search.qualities.add(Quality.parse(quality));
-		}
-		search.filter = filter;
-		search.magnet = magnet;
-		search.date = date;
-
-		List<Torrent> torrents = betarssService.searchTorrents(search);
-
-		return produce(mode, torrents, feedTitle(search), magnet);
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
+		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
+		betarssSearch.showEpisode.show = show;
+		betarssSearch.showEpisode.season = season;
+		List<Torrent> torrents = betarssService.searchTorrents(betarssSearch);
+		return produce(mode, torrents, betarssSearch);
 	}
 
 	@RequestMapping(value = "last", method = RequestMethod.GET)
@@ -79,8 +67,9 @@ public class BetarssResource {
 			@RequestParam(required = false) String quality, //
 			@RequestParam(required = false) String filter, //
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@RequestParam(required = false, defaultValue = "true") Boolean magnet, @RequestParam(required = false, defaultValue = "rss") String mode)
-			throws Exception {
+			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
+
 		return feed(null, -1, language, provider, quality, filter, date, magnet, mode);
 	}
 
@@ -95,8 +84,42 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetaseriesSearch search = new BetaseriesSearch();
-		search.login = login;
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
+		BetaseriesSearch betaseriesSearch = new BetaseriesSearch(baseSearch);
+		betaseriesSearch.login = login;
+		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
+		return produce(mode, torrents, betaseriesSearch);
+	}
+
+	@RequestMapping(value = "search", method = RequestMethod.GET)
+	public HttpEntity<byte[]> search( //
+			@RequestParam(required = true) String hash) throws Exception {
+		return null;
+	}
+
+	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetarssSearch betarssSearch) throws Exception {
+		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betarssSearch), torrents, betarssSearch.magnet);
+	}
+
+	private String feedTitle(BetarssSearch betarssSearch) {
+		ShowEpisode showEpisode = betarssSearch.showEpisode;
+		return showEpisode.show != null ? formatEpisodeUpperCase(showEpisode.show, showEpisode.season) : "Last entries...";
+	}
+
+	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetaseriesSearch betaseriesSearch) throws Exception {
+		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betaseriesSearch), torrents, betaseriesSearch.magnet);
+	}
+
+	private String feedTitle(BetaseriesSearch search) {
+		return search.login + "'s feed @ betaseries.com";
+	}
+
+	private Mode getMode(String mode) {
+		return Mode.parse(mode);
+	}
+
+	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean date, Boolean magnet) {
+		BetarssSearch search = new BetarssSearch();
 		if (provider != null) {
 			search.providers.add(Provider.parse(provider));
 		} else {
@@ -108,36 +131,7 @@ public class BetarssResource {
 		search.filter = filter;
 		search.magnet = magnet;
 		search.date = date;
-
-		List<Torrent> torrents = betaseriesService.getTorrents(search);
-
-		return produce(mode, torrents, feedTitle(search), magnet);
-	}
-
-	@RequestMapping(value = "search", method = RequestMethod.GET)
-	public HttpEntity<byte[]> search( //
-			@RequestParam(required = true) String hash) throws Exception {
-		return null;
-	}
-
-	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, String title, boolean magnet) throws Exception {
-		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(title, torrents, magnet);
-	}
-
-	private String feedTitle(BetarssSearch search) {
-		return search.showEpisode.show != null ? formatEpisodeUpperCase(search.showEpisode.show, search.showEpisode.season) : "Last entries...";
-	}
-
-	private String feedTitle(BetaseriesSearch search) {
-		return search.login + "@betaseries.com";
-	}
-
-	private Mode getMode(String mode) {
-		return Mode.parse(mode);
-	}
-
-	static {
-		HttpUtils.avoidHttpsErrors();
+		return search;
 	}
 
 }

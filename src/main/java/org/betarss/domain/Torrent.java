@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.betarss.utils.Shows;
 
-// TODO P1 - Les services renvoient des List<Torrent> à la place des List<Feeditem>
+// TODO : Use builder
 public class Torrent {
 	public String title;
 	public String description;

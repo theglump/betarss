@@ -1,5 +1,6 @@
 package org.betarss.domain;
 
+// TODO : Use a builder
 public class BetaseriesSearch extends BaseSearch {
 	public String login;
 
