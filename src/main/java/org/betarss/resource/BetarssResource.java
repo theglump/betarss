@@ -24,8 +24,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.mangofactory.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+
 @Controller
 //TODO : P3 - donner la possibilité de récupérér la dernière log d'une recherche
+@RequestMapping({ "/api" })
+@Api(value = "coco", description = "TV show torrents")
 public class BetarssResource {
 
 	@Autowired
@@ -40,8 +47,11 @@ public class BetarssResource {
 	@Autowired
 	private ConfigurationService configurationService;
 
+	@ApiOperation(httpMethod = "get", value = "feed")
+	@ApiModel(type = String.class)
 	@RequestMapping(value = "feed", method = RequestMethod.GET)
 	public HttpEntity<byte[]> feed( //
+			@ApiParam(name = "show", required = true, internalDescription = "coco")//
 			@RequestParam(required = true) String show, //
 			@RequestParam(required = true) Integer season, //
 			@RequestParam(required = false, defaultValue = "en") String language, //
@@ -69,7 +79,6 @@ public class BetarssResource {
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
-
 		return feed(null, -1, language, provider, quality, filter, date, magnet, mode);
 	}
 

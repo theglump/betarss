@@ -18,7 +18,7 @@ import com.google.common.io.Files;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:application-context.xml")
-public class BetarssRessourceConnectedTest {
+public class BetarssResourceConnectedTest {
 
 	@Autowired
 	private BetarssResource resource;
