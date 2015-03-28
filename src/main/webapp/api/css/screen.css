@@ -401,7 +401,7 @@ body #content_message {
 }
 
 body #header {
-    background-color: #89bf04;
+    background-color: #0f6ab4;
     padding: 14px;
 }
 
@@ -411,6 +411,14 @@ body #header a#logo {
     text-decoration: none;
     background: transparent url(../images/logo_small.png) no-repeat left center;
     padding: 20px 0 20px 40px;
+    color: white;
+}
+
+body #header a#title {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 20px 0 20px 0;
     color: white;
 }
 

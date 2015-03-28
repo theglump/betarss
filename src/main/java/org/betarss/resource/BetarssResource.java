@@ -26,13 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mangofactory.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 @Controller
-//TODO : P3 - donner la possibilité de récupérér la dernière log d'une recherche
-@RequestMapping({ "/api" })
-@Api(value = "coco", description = "TV show torrents")
+@RequestMapping({ "/feed" })
+@Api(value = "feed", description = "Torrents feeds for tv shows")
 public class BetarssResource {
 
 	@Autowired
@@ -47,19 +45,25 @@ public class BetarssResource {
 	@Autowired
 	private ConfigurationService configurationService;
 
-	@ApiOperation(httpMethod = "get", value = "feed")
 	@ApiModel(type = String.class)
-	@RequestMapping(value = "feed", method = RequestMethod.GET)
-	public HttpEntity<byte[]> feed( //
-			@ApiParam(name = "show", required = true, internalDescription = "coco")//
+	@RequestMapping(value = "show", method = RequestMethod.GET)
+	public HttpEntity<byte[]> specificShow( //
+			@ApiParam(name = "show", required = true)//
 			@RequestParam(required = true) String show, //
+			@ApiParam(name = "season", required = true)//
 			@RequestParam(required = true) Integer season, //
+			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
+			@ApiParam(name = "quality", allowableValues = "hd,720p")//
 			@RequestParam(required = false) String quality, //
+			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
+			@ApiParam(name = "date", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
+			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
 		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
@@ -70,27 +74,22 @@ public class BetarssResource {
 		return produce(mode, torrents, betarssSearch);
 	}
 
-	@RequestMapping(value = "last", method = RequestMethod.GET)
-	public HttpEntity<byte[]> last( //
-			@RequestParam(required = false, defaultValue = "en") String language, //
-			@RequestParam(required = false) String provider, //
-			@RequestParam(required = false) String quality, //
-			@RequestParam(required = false) String filter, //
-			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
-			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
-		return feed(null, -1, language, provider, quality, filter, date, magnet, mode);
-	}
-
 	@RequestMapping(value = "betaseries", method = RequestMethod.GET)
-	public HttpEntity<byte[]> betaseries( //
+	public HttpEntity<byte[]> fromBetaseries( //
+			@ApiParam(name = "login", required = true)//
 			@RequestParam(required = true) String login, //
+			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
+			@ApiParam(name = "quality", allowableValues = "hd,720p")//
 			@RequestParam(required = false) String quality, //
+			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
+			@ApiParam(name = "date", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean date, //
+			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
 		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
@@ -100,10 +99,23 @@ public class BetarssResource {
 		return produce(mode, torrents, betaseriesSearch);
 	}
 
-	@RequestMapping(value = "search", method = RequestMethod.GET)
-	public HttpEntity<byte[]> search( //
-			@RequestParam(required = true) String hash) throws Exception {
-		return null;
+	//@ApiIgnore
+	@RequestMapping(value = "latest", method = RequestMethod.GET)
+	public HttpEntity<byte[]> latestEpisodes( //
+			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
+			@RequestParam(required = false, defaultValue = "en") String language, //
+			@RequestParam(required = false) String provider, //
+			@ApiParam(name = "quality", allowableValues = "hd,720p")//
+			@RequestParam(required = false) String quality, //
+			@ApiParam(name = "filter")//
+			@RequestParam(required = false) String filter, //
+			@ApiParam(name = "date", defaultValue = "true")//
+			@RequestParam(required = false, defaultValue = "true") Boolean date, //
+			@ApiParam(name = "magnet", defaultValue = "true")//
+			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
+			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
+		return specificShow(null, -1, language, provider, quality, filter, date, magnet, mode);
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetarssSearch betarssSearch) throws Exception {

@@ -25,31 +25,31 @@ public class BetarssResourceConnectedTest {
 
 	@Test
 	public void search_matches_with_FR_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, "fr", null, null, null, true, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, "fr", null, null, null, true, true, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("FR_language"));
 	}
 
 	@Test
 	public void search_matches_with_VOSTFR_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, "vostfr", null, null, null, true, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, "vostfr", null, null, null, true, true, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("VOSTFR_language"));
 	}
 
 	@Test
 	public void search_matches_with_EN_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", "720p", null, true, false, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", "720p", null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language"));
 	}
 
 	@Test
 	public void search_matches_with_EN_language_and_alternative_season_format() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("sherlock", 1, null, "eztv", null, null, true, false, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("sherlock", 1, null, "eztv", null, null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language_and_alternative_season_format"));
 	}
 
 	@Test
 	public void search_matches_with_EN_language_and_MAGNET_and_URL_mode() throws Exception {
-		HttpEntity<byte[]> feed = resource.feed("game of thrones", 4, null, "eztv", null, null, true, true, "url");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", null, null, true, true, "url");
 		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language_and_MAGNET_and_URL_mode", "url"));
 	}
 
