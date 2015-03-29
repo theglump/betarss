@@ -1,7 +1,7 @@
 package org.betarss.domain;
 
 public enum Quality {
-	HD("hd"), HD720p("720p");
+	SD("sd"), HD("hd");
 
 	String id;
 

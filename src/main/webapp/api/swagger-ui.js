@@ -55,8 +55,9 @@ function clippyCopiedCallback(a) {
     $('#api_key_copied').fadeIn().delay(1000).fadeOut();
 
     // var b = $("#clippy_tooltip_" + a);
-    // b.length != 0 && (b.attr("title", "copied!").trigger("tipsy.reload"), setTimeout(function() {
-    //   b.attr("title", "copy to clipboard")
+    // b.length != 0 && (b.attr("title", "copied!").trigger("tipsy.reload"),
+	// setTimeout(function() {
+    // b.attr("title", "copy to clipboard")
     // },
     // 500))
 }
@@ -65,7 +66,8 @@ function clippyCopiedCallback(a) {
 function log() {
     if (window.console) console.log.apply(console,arguments);
 }
-// Handle browsers that do console incorrectly (IE9 and below, see http://stackoverflow.com/a/5539378/7913)
+// Handle browsers that do console incorrectly (IE9 and below, see
+// http://stackoverflow.com/a/5539378/7913)
 if (Function.prototype.bind && console && typeof console.log == "object") {
     [
         "log","info","warn","error","assert","dir","clear","profile","profileEnd"
@@ -86,7 +88,7 @@ var Docs = {
         switch (fragments.length) {
             case 1:
                 // Expand all operations for the resource and scroll to it
-//				log('shebang resource:' + fragments[0]);
+// log('shebang resource:' + fragments[0]);
                 var dom_id = 'resource_' + fragments[0];
 
                 Docs.expandEndpointListForResource(fragments[0]);
@@ -94,7 +96,7 @@ var Docs = {
                 break;
             case 2:
                 // Refer to the endpoint DOM element, e.g. #words_get_search
-//				log('shebang endpoint: ' + fragments.join('_'));
+// log('shebang endpoint: ' + fragments.join('_'));
 
                 // Expand Resource
                 Docs.expandEndpointListForResource(fragments[0]);
@@ -104,8 +106,8 @@ var Docs = {
                 var li_dom_id = fragments.join('_');
                 var li_content_dom_id = li_dom_id + "_content";
 
-//                log("li_dom_id " + li_dom_id);
-//                log("li_content_dom_id " + li_content_dom_id);
+// log("li_dom_id " + li_dom_id);
+// log("li_content_dom_id " + li_content_dom_id);
 
                 Docs.expandOperation($('#'+li_content_dom_id));
                 $('#'+li_dom_id).slideto({highlight: false});
@@ -240,7 +242,7 @@ var Docs = {
             buffer += escapeExpression(stack1) + "\n        ";
             return buffer;}
 
-        buffer += "\n<div class='container' id='resources_container'>\n    <ul id='resources'>\n    </ul>\n\n    <div class=\"footer\">\n        <br>\n        <br>\n        <h4 style=\"color: #999\">[ <span style=\"font-variant: small-caps\">base url</span>: ";
+        buffer += "\n<div class='container' id='resources_container'>\n    <ul id='resources'>\n    </ul>\n\n    <div class=\"footer\">\n        <br>\n        <br>\n        <!--h4 style=\"color: #999\">[ <span style=\"font-variant: small-caps\">base url</span>: ";
         foundHelper = helpers.basePath;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.basePath; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
@@ -249,7 +251,7 @@ var Docs = {
         stack2 = {};
         stack1 = helpers['if'].call(depth0, stack1, {hash:stack2,inverse:self.noop,fn:self.program(1, program1, data),data:data});
         if(stack1 || stack1 === 0) { buffer += stack1; }
-        buffer += "]</h4>\n    </div>\n</div>\n";
+        buffer += "]</h4 !-->\n    </div>\n</div>\n";
         return buffer;});
 })();
 
@@ -400,8 +402,10 @@ var Docs = {
         buffer += "\n                ";
         stack1 = depth0.responseClass;
         stack2 = {};
-        stack1 = helpers['if'].call(depth0, stack1, {hash:stack2,inverse:self.noop,fn:self.program(3, program3, data),data:data});
-        if(stack1 || stack1 === 0) { buffer += stack1; }
+        // stack1 = helpers['if'].call(depth0, stack1,
+		// {hash:stack2,inverse:self.noop,fn:self.program(3, program3,
+		// data),data:data});
+        // if(stack1 || stack1 === 0) { buffer += stack1; }
         buffer += "\n                <form accept-charset='UTF-8' class='sandbox'>\n                    <div style='margin:0;padding:0;display:inline'></div>\n                    ";
         stack1 = depth0.parameters;
         stack2 = {};
@@ -417,7 +421,7 @@ var Docs = {
         stack2 = {};
         stack1 = helpers['if'].call(depth0, stack1, {hash:stack2,inverse:self.program(11, program11, data),fn:self.program(9, program9, data),data:data});
         if(stack1 || stack1 === 0) { buffer += stack1; }
-        buffer += "\n                </form>\n                <div class='response' style='display:none'>\n                    <h4>Request URL</h4>\n                    <div class='block request_url'></div>\n                    <h4>Response Body</h4>\n                    <div class='block response_body'></div>\n                    <h4>Response Code</h4>\n                    <div class='block response_code'></div>\n                    <h4>Response Headers</h4>\n                    <div class='block response_headers'></div>\n                </div>\n            </div>\n        </li>\n    </ul>\n";
+        buffer += "\n                </form>\n                <div class='response' style='display:none'>\n                    <h4>Request URL</h4>\n                    <div class='block request_url'></div>\n                    <h4>Response Body</h4>\n                    <div class='block response_body'></div>\n                    <h4>Response Code</h4>\n                    <div class='block response_code'></div>\n                    <!--h4>Response Headers</h4>\n                    <div class='block response_headers'></div !-->\n                </div>\n            </div>\n        </li>\n    </ul>\n";
         return buffer;});
 })();
 
@@ -877,7 +881,7 @@ var Docs = {
         foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-        buffer += escapeExpression(stack1) + "</a>\n    </h2>\n    <ul class='options'>\n        <li>\n            <a href='#!/";
+        buffer += escapeExpression(stack1) + "</a>\n    </h2>\n    <ul class='options'>\n        <li>\n            <!--a href='#!/";
         foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
@@ -889,19 +893,19 @@ var Docs = {
         foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-        buffer += escapeExpression(stack1) + "');\">Show/Hide</a>\n        </li>\n        <li>\n            <a href='#' onclick=\"Docs.collapseOperationsForResource('";
-        foundHelper = helpers.name;
+        buffer += escapeExpression(stack1) + "');\">Show/Hide</a>\n        </li --!>\n        <li>\n            <a href='#' onclick=\"Docs.collapseOperationsForResource('";
+       foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
         buffer += escapeExpression(stack1) + "'); return false;\">\n                List Operations\n            </a>\n        </li>\n        <li>\n            <a href='#' onclick=\"Docs.expandOperationsForResource('";
         foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-        buffer += escapeExpression(stack1) + "'); return false;\">\n                Expand Operations\n            </a>\n        </li>\n        <li>\n            <a href='";
+        buffer += escapeExpression(stack1) + "'); return false;\">\n                Expand Operations\n            </a>\n        </li>\n        <!--li>\n            <a href='";
         foundHelper = helpers.url;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-        buffer += escapeExpression(stack1) + "'>Raw</a>\n        </li>\n    </ul>\n</div>\n<ul class='endpoints' id='";
+        buffer += escapeExpression(stack1) + "'></a>\n        </li !-->\n    </ul>\n</div>\n<ul class='endpoints' id='";
         foundHelper = helpers.name;
         if (foundHelper) { stack1 = foundHelper.call(depth0, {hash:{},data:data}); }
         else { stack1 = depth0.name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
@@ -1383,7 +1387,7 @@ var Docs = {
                 headerParams = null;
                 invocationUrl = this.model.supportHeaderParams() ? (headerParams = this.model.getHeaderParams(map), this.model.urlify(map, false)) : this.model.urlify(map, true);
                 log('submitting ' + invocationUrl);
-                $(".request_url", $(this.el)).html("<pre>" + invocationUrl + "</pre>");
+                $(".request_url", $(this.el)).html("<pre><a class=\"invocationUrl\" onclick=\"window.open(this.href); return false;\" onkeypress=\"window.open(this.href); return false;\" href=\"" + invocationUrl +"\">" + invocationUrl + "</a></pre>");
                 $(".response_throbber", $(this.el)).show();
                 obj = {
                     type: this.model.httpMethod,
@@ -1514,17 +1518,22 @@ var Docs = {
 
         OperationView.prototype.showStatus = function(data) {
             var code, pre, response_body;
-            try {
-                code = $('<code />').text(JSON.stringify(JSON.parse(data.responseText), null, 2));
-                pre = $('<pre class="json" />').append(code);
-            } catch (error) {
-                code = $('<code />').text(this.formatXml(data.responseText));
-                pre = $('<pre class="xml" />').append(code);
+            if (data.responseText.indexOf("html") != -1) {
+            	var re = /<table>.*<\/table>/;
+            	pre = "<div class=\"results\">" + data.responseText.match(re)[0] + "</div>";
+            } else {
+            	try {
+	                code = $('<code />').text(JSON.stringify(JSON.parse(data.responseText), null, 2));
+	                pre = $('<pre class="json" />').append(code);
+	            } catch (error) {
+	                code = $('<code />').text(this.formatXml(data.responseText));
+	                pre = $('<pre class="xml" />').append(code);
+	            }
             }
-            response_body = pre;
+             response_body = pre;
             $(".response_code", $(this.el)).html("<pre>" + data.status + "</pre>");
             $(".response_body", $(this.el)).html(response_body);
-            $(".response_headers", $(this.el)).html("<pre>" + data.getAllResponseHeaders() + "</pre>");
+//            $(".response_headers", $(this.el)).html("<pre>" + data.getAllResponseHeaders() + "</pre>");
             $(".response", $(this.el)).slideDown();
             $(".response_hider", $(this.el)).show();
             $(".response_throbber", $(this.el)).hide();

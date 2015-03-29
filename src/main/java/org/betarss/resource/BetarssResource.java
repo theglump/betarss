@@ -55,7 +55,7 @@ public class BetarssResource {
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
-			@ApiParam(name = "quality", allowableValues = "hd,720p")//
+			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
@@ -81,7 +81,7 @@ public class BetarssResource {
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
-			@ApiParam(name = "quality", allowableValues = "hd,720p")//
+			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
@@ -105,7 +105,7 @@ public class BetarssResource {
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
 			@RequestParam(required = false) String provider, //
-			@ApiParam(name = "quality", allowableValues = "hd,720p")//
+			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //

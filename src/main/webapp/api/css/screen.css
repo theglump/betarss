@@ -754,6 +754,21 @@ body ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operatio
     border-color: #e5e0c6;
 }
 
+body  div.results a {
+  	color: black;
+    text-decoration: none;
+    border-collapse: collapse;
+}
+
+body  div.results tr {
+  border-bottom: 1px solid #fff;
+}
+
+body  a.invocationUrl {
+  	color: black;
+    text-decoration: none;
+}
+
 body ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get div.content div.response div.block pre {
     font-family: "Anonymous Pro", "Menlo", "Consolas", "Bitstream Vera Sans Mono", "Courier New", monospace;
     padding: 10px;
