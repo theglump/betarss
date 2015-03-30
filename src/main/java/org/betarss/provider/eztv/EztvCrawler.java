@@ -14,6 +14,7 @@ import org.betarss.infrastructure.http.HttpClient;
 import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
+import org.betarss.utils.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import com.google.common.collect.Lists;
 @Service
 public class EztvCrawler implements Crawler {
 
+	private static final String LAST_ITEMS_URL = "https://eztv.ch/";
 	private static final String SEARCH_URL = "https://eztv.ch/search/";
 
 	private static final String PATTERN_1 = "(Added on: <b>(\\d+, \\w+, \\d+)</b>)|(title=\"(";
@@ -51,8 +53,11 @@ public class EztvCrawler implements Crawler {
 	}
 
 	private String html(final String show) {
-		String showId = getTvShowId(show).toString();
-		return httpClient.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
+		if (Strings.isNotEmpty(show)) {
+			String showId = getTvShowId(show).toString();
+			return httpClient.post(SEARCH_URL, FETCH_HTML_RETRY_NUMBER, Parameter.create("SearchString", showId));
+		}
+		return httpClient.post(LAST_ITEMS_URL, FETCH_HTML_RETRY_NUMBER);
 	}
 
 	private List<Torrent> getTorrents(String html, Pattern pattern) {
@@ -116,13 +121,12 @@ public class EztvCrawler implements Crawler {
 
 	private String getSearchPattern(String show, Integer season) {
 		StringBuilder sb = new StringBuilder();
-		if (show != null) {
+		if (Strings.isNotEmpty(show)) {
 			sb.append(show);
-			if (season != null) {
+			if (season != null && season > 0) {
 				sb.append(" (").append(formatSeason(season)).append("|").append(formatSeasonOldSchool(season)).append(")");
 			}
 		} else {
-			// conserve same number of groups
 			sb.append("()");
 		}
 		return sb.toString();

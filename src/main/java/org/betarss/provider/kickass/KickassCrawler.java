@@ -16,6 +16,7 @@ import org.betarss.provider.Crawler;
 import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.Shows;
+import org.betarss.utils.Torrents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -55,11 +56,11 @@ public class KickassCrawler implements Crawler {
 	}
 
 	public List<Torrent> crawlForSeason(String show, Integer season) {
-		return getTorrents(fetchHtml(show, season));
+		return Torrents.sort(getTorrents(fetchHtml(show, season)));
 	}
 
 	public List<Torrent> crawlNewTorrents(String show, Integer season) {
-		return getTorrents(fetchHtml());
+		return Torrents.sort(getTorrents(fetchHtml()));
 	}
 
 	private List<Torrent> getTorrents(String html) {

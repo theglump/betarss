@@ -3,13 +3,13 @@ package org.betarss.provider.showrss;
 import static java.lang.Integer.parseInt;
 import static java.util.regex.Pattern.compile;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.betarss.exception.BetarssException;
 import org.betarss.infrastructure.cache.AbstractCache;
-import org.jsoup.Jsoup;
+import org.betarss.infrastructure.http.HttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,15 +20,14 @@ public class ShowRssCache extends AbstractCache<String, Integer> {
 	private static final Pattern OPTION_HTML_PATTERN = compile("<option value=\"(\\d+)\">(((?!</option>).)*)</option>", Pattern.DOTALL
 			| Pattern.CASE_INSENSITIVE);
 
+	@Autowired
+	@Qualifier("httpClient")
+	private HttpClient httpClient;
+
 	@Override
 	protected void init() {
 		String html;
-		try {
-			html = Jsoup.connect("http://showrss.info/?cs=feeds").userAgent("Mozilla/5.0").get().html();
-		} catch (IOException e) {
-			throw new BetarssException("Couldn't create showrss cache", e);
-		}
-
+		html = httpClient.get("http://showrss.info/?cs=feeds");
 		Matcher m = OPTIONS_HTML_PATTERN.matcher(html);
 		m.find();
 		String optionHtml = m.group(1);

@@ -17,6 +17,8 @@ import org.betarss.domain.ShowEpisode;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.ConfigurationService;
 import org.betarss.producer.ProducerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
@@ -32,6 +34,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @RequestMapping({ "/feed" })
 @Api(value = "feed", description = "Torrents feeds for tv shows")
 public class BetarssResource {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BetarssResource.class);
 
 	@Autowired
 	private BetaseriesService betaseriesService;
@@ -50,23 +54,22 @@ public class BetarssResource {
 	public HttpEntity<byte[]> specificShow( //
 			@ApiParam(name = "show", required = true)//
 			@RequestParam(required = true) String show, //
-			@ApiParam(name = "season", required = true)//
+			@ApiParam(name = "season", required = true, allowableValues = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15")//
 			@RequestParam(required = true) Integer season, //
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
+			@ApiParam(name = "provider", required = false, allowableValues = "eztv,cpasbien,showrss,kickass")//
 			@RequestParam(required = false) String provider, //
 			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
-			@ApiParam(name = "date", defaultValue = "true")//
-			@RequestParam(required = false, defaultValue = "true") Boolean date, //
 			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
-			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
+			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
 		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
 		betarssSearch.showEpisode.show = show;
 		betarssSearch.showEpisode.season = season;
@@ -80,19 +83,18 @@ public class BetarssResource {
 			@RequestParam(required = true) String login, //
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
+			@ApiParam(name = "provider", required = false, allowableValues = "eztv,cpasbien,showrss,kickass")//
 			@RequestParam(required = false) String provider, //
 			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
-			@ApiParam(name = "date", defaultValue = "true")//
-			@RequestParam(required = false, defaultValue = "true") Boolean date, //
 			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
-			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
+			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, date, magnet);
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
 		BetaseriesSearch betaseriesSearch = new BetaseriesSearch(baseSearch);
 		betaseriesSearch.login = login;
 		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
@@ -104,18 +106,17 @@ public class BetarssResource {
 	public HttpEntity<byte[]> latestEpisodes( //
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
+			@ApiParam(name = "provider", required = false, allowableValues = "eztv,cpasbien,showrss,kickass")//
 			@RequestParam(required = false) String provider, //
 			@ApiParam(name = "quality", allowableValues = "sd,hd")//
 			@RequestParam(required = false) String quality, //
 			@ApiParam(name = "filter")//
 			@RequestParam(required = false) String filter, //
 			@ApiParam(name = "date", defaultValue = "true")//
-			@RequestParam(required = false, defaultValue = "true") Boolean date, //
-			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
-			@ApiParam(name = "mode", required = true, allowableValues = "rss,html,url")//
+			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
-		return specificShow(null, -1, language, provider, quality, filter, date, magnet, mode);
+		return specificShow(null, -1, language, provider, quality, filter, magnet, mode);
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetarssSearch betarssSearch) throws Exception {
@@ -139,7 +140,7 @@ public class BetarssResource {
 		return Mode.parse(mode);
 	}
 
-	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean date, Boolean magnet) {
+	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean magnet) {
 		BetarssSearch search = new BetarssSearch();
 		if (provider != null) {
 			search.providers.add(Provider.parse(provider));
@@ -151,7 +152,7 @@ public class BetarssResource {
 		}
 		search.filter = filter;
 		search.magnet = magnet;
-		search.date = date;
+		search.date = true;
 		return search;
 	}
 

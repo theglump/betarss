@@ -68,6 +68,10 @@
             });
 
             window.swaggerUi.load();
+            
+            $( document ).ready(function() {
+            	window.swaggerUi.expandFeed();
+            });
         });
 
     </script>
@@ -77,8 +81,8 @@
 <div id='header'>
 
     <div class="swagger-ui-wrap">
-        <a id="title">betarss</a>
-
+        <a id="title" href="../">Betarss</a>
+        
         <!--form id='api_selector'>
             <div class='input icon-btn'>
                 <img id="show-pet-store-icon" src="images/pet_store_api.png" title="Show Swagger Petstore Example Apis">

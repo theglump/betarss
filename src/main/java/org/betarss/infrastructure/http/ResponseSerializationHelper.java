@@ -2,6 +2,7 @@ package org.betarss.infrastructure.http;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +13,7 @@ import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 import org.betarss.utils.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriUtils;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -65,14 +67,19 @@ public class ResponseSerializationHelper {
 	}
 
 	private File computeDataFile(String url, Parameter... parameters) {
-		Pattern p = Pattern.compile(".*:\\/\\/(((?!\\/).)*)(\\/(.*))?");
+		Pattern p = Pattern.compile(".*:\\/\\/(((?!\\/).)*)(.*)");
 		Matcher m = p.matcher(url);
 		if (m.find()) {
-			String baseUrl = format(m.group(1));
-			String pageUrl = Strings.defaultString(format(m.group(4)), "root");
+			String baseUrl = m.group(1);
+			String parametersString = m.group(3);
+			String pageUrl = parametersString.length() > 1 ? format(parametersString.substring(1)) : "index";
 			if (parameters != null) {
 				for (Parameter parameter : parameters) {
-					pageUrl += parameter.getName() + "_" + format(parameter.getValue());
+					try {
+						pageUrl += parameter.getName() + "=" + UriUtils.encodeQueryParam(parameter.getValue(), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						throw new BetarssException("Encoding url error " + url);
+					}
 				}
 			}
 			return new File(concat(getHttpSerializationDirectory(), baseUrl, pageUrl) + ".html");
@@ -85,7 +92,7 @@ public class ResponseSerializationHelper {
 		if (Strings.isEmpty(elem)) {
 			return "";
 		}
-		return elem.replaceAll("(\\.|\\/| )", "_");
+		return elem.replaceAll("(\\.|\\/| |\\?)", "_");
 	}
 
 	private String concat(String... elems) {

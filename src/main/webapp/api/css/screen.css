@@ -422,6 +422,14 @@ body #header a#title {
     color: white;
 }
 
+body #header a#menu {
+    font-size: 1,1em;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 20px 0 20px 0;
+    color: white;
+}
+
 body #header form#api_selector {
     display: block;
     clear: none;

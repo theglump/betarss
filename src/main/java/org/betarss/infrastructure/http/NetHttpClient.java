@@ -27,7 +27,7 @@ import com.google.common.io.ByteStreams;
 public class NetHttpClient implements HttpClient {
 
 	private static final String HTTP_USER_AGENT = "Mozilla/5.0";
-	private static final boolean SERIALIZATION = true;
+	private static final boolean SERIALIZATION = false;
 
 	@Autowired
 	private ConfigurationService configurationService;

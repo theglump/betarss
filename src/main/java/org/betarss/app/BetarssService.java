@@ -29,7 +29,7 @@ public class BetarssService {
 
 	private Provider getProvider(BetarssSearch search) {
 		if (search.languages.size() > 0) {
-			return configurationService.getProviders().get(getLanguage(search)).get(0);
+			return configurationService.getBetarssProviders().get(getLanguage(search)).get(0);
 		}
 		return search.providers.get(0);
 	}

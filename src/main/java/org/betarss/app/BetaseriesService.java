@@ -67,9 +67,10 @@ public class BetaseriesService {
 
 				@Override
 				public void doCall() throws Exception {
-					BetarssSearch betarssSearch = createBetarssSearch(betaseriesSearch, entries.get(0));
+					BetarssSearch betarssSearch = createBetarssSearch(betaseriesSearch, transcodeItem(entries.get(0)));
+					List<Torrent> doSearch = getSearchEngine(betaseriesSearch).doSearch(betarssSearch);
 					for (String entry : entries) {
-						for (Torrent torrent : getSearchEngine(betaseriesSearch).doSearch(betarssSearch)) {
+						for (Torrent torrent : doSearch) {
 							if (torrent.getShowEpisode().equals(createShowEpisode(entry))) {
 								results.add(torrent);
 							}
@@ -123,12 +124,19 @@ public class BetaseriesService {
 
 	private Provider getProvider(BaseSearch baseSearch) {
 		if (baseSearch.languages.size() > 0) {
-			return configurationService.getProviders().get(getLanguage(baseSearch)).get(0);
+			return configurationService.getBetaseriesProviders().get(getLanguage(baseSearch)).get(0);
 		}
 		return baseSearch.providers.get(0);
 	}
 
 	private Language getLanguage(BaseSearch parameter) {
 		return parameter.languages.size() > 0 ? parameter.languages.get(0) : null;
+	}
+
+	private String transcodeItem(String item) {
+		if (item.startsWith("The Royals (2015)")) {
+			return item.replace("The Royals (2015)", "The Royals");
+		}
+		return item;
 	}
 }

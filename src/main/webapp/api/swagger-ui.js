@@ -421,7 +421,7 @@ var Docs = {
         stack2 = {};
         stack1 = helpers['if'].call(depth0, stack1, {hash:stack2,inverse:self.program(11, program11, data),fn:self.program(9, program9, data),data:data});
         if(stack1 || stack1 === 0) { buffer += stack1; }
-        buffer += "\n                </form>\n                <div class='response' style='display:none'>\n                    <h4>Request URL</h4>\n                    <div class='block request_url'></div>\n                    <h4>Response Body</h4>\n                    <div class='block response_body'></div>\n                    <h4>Response Code</h4>\n                    <div class='block response_code'></div>\n                    <!--h4>Response Headers</h4>\n                    <div class='block response_headers'></div !-->\n                </div>\n            </div>\n        </li>\n    </ul>\n";
+        buffer += "\n                </form>\n                <div class='response' style='display:none'>\n                    <h4>Request URL</h4>\n                    <div class='block request_url'></div>\n                    <h4>Response Body</h4>\n                    <div class='block response_body'></div>\n                    <!--h4>Response Code</h4>\n                    <div class='block response_code'></div --!>\n                    <!--h4>Response Headers</h4>\n                    <div class='block response_headers'></div !-->\n                </div>\n            </div>\n        </li>\n    </ul>\n";
         return buffer;});
 })();
 
@@ -1023,7 +1023,7 @@ var Docs = {
             this.headerView.update(this.options.discoveryUrl, this.options.apiKey);
             return this.api = new SwaggerApi(this.options);
         };
-
+        
         SwaggerUi.prototype.render = function() {
             var _this = this;
             this.showMessage('Finished Loading Resource Information. Rendering Swagger UI...');
@@ -1040,6 +1040,7 @@ var Docs = {
                     Docs.collapseOperationsForResource('');
             }
             if (this.options.onComplete) {
+            	Docs.toggleEndpointListForResource('feed');
                 this.options.onComplete(this.api, this);
             }
             return setTimeout(function() {

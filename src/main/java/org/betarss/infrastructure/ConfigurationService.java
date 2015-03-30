@@ -14,11 +14,19 @@ public class ConfigurationService {
 		return "http://192.168.1.39:8080/betarss/";
 	}
 
-	public ListMultimap<Language, Provider> getProviders() {
+	public ListMultimap<Language, Provider> getBetarssProviders() {
 		ListMultimap<Language, Provider> providers = ArrayListMultimap.create();
 		providers.put(Language.FR, Provider.CPASBIEN);
 		providers.put(Language.VOSTFR, Provider.CPASBIEN);
 		providers.put(Language.EN, Provider.EZTV);
+		return providers;
+	}
+
+	public ListMultimap<Language, Provider> getBetaseriesProviders() {
+		ListMultimap<Language, Provider> providers = ArrayListMultimap.create();
+		providers.put(Language.FR, Provider.CPASBIEN);
+		providers.put(Language.VOSTFR, Provider.CPASBIEN);
+		providers.put(Language.EN, Provider.SHOWRSS);
 		return providers;
 	}
 
@@ -27,7 +35,7 @@ public class ConfigurationService {
 	}
 
 	public String getHttpSerializationDirectory() {
-		return "C:/Work/Workspaces/main/betarss-mock/";
+		return "C:/Work/Workspaces/main/betarss/src/integration/ressources/data";
 	}
 
 }
