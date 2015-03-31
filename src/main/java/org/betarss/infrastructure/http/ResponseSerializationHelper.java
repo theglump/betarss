@@ -44,7 +44,7 @@ public class ResponseSerializationHelper {
 		if (!f.exists()) {
 			Files.createParentDirs(f);
 		}
-		Files.write(Joiner.on("µµµ").join(response).getBytes(), f);
+		Files.write(Joiner.on("---").join(response).getBytes(), f);
 	}
 
 	public String deserializeRequestResult(String url) throws IOException {
@@ -59,7 +59,7 @@ public class ResponseSerializationHelper {
 	public List<String> deserializeRequestForHtmlTags(String url, String htmlTag) throws IOException {
 		File f = computeTagDataFile(url, htmlTag);
 		String data = Files.toString(f, Charsets.UTF_8);
-		return Splitter.on("µµµ").splitToList(data);
+		return Splitter.on("---").splitToList(data);
 	}
 
 	private File computeTagDataFile(String url, String htmlTag) {

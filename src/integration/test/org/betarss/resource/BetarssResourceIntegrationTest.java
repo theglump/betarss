@@ -9,8 +9,6 @@ import org.betarss.infrastructure.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,7 +21,7 @@ import com.google.common.io.Files;
 @ContextConfiguration(locations = "classpath:application-context.xml")
 public class BetarssResourceIntegrationTest {
 
-	private static final boolean PRODUCE_DATA = true;
+	private static final boolean PRODUCE_DATA = false;
 
 	@Autowired
 	private BetarssResource resource;
@@ -60,7 +58,7 @@ public class BetarssResourceIntegrationTest {
 	@Test
 	public void search_BETARSS_language_FR_quality_SD() throws Exception {
 		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, "fr", null, "sd", null, false, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("search_BETARSS_language_VOSTFR_quality_SD", "rss"));
+		assertThat(asString(feed)).isEqualTo(expectedResult("search_BETARSS_language_FR_quality_SD", "rss"));
 	}
 
 	@Test
@@ -94,12 +92,6 @@ public class BetarssResourceIntegrationTest {
 	}
 
 	@Test
-	public void search_BETASERIES_language_VOSTFR_quality_HD() throws Exception {
-		HttpEntity<byte[]> feed = resource.fromBetaseries("theglump", "fr", null, "hd", null, true, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("search_BETASERIES_language_VOSTFR_quality_HD", "rss"));
-	}
-
-	@Test
 	public void search_LAST_provider_EZTV() throws Exception {
 		HttpEntity<byte[]> feed = resource.latestEpisodes(null, "eztv", null, null, true, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("search_LAST_provider_EZTV", "html"));
@@ -120,14 +112,14 @@ public class BetarssResourceIntegrationTest {
 	String file = null;
 
 	private String expectedResult(String testId, String mode) throws IOException {
-		String ext = "url".equals(mode) ? ".txt" : "html".equals(mode) ? ".xhtml" : ".xml";
-		Resource resource = new ClassPathResource("/data/search_results_for_" + testId + ext);
+		String ext = "url".equals(mode) ? ".txt" : "html".equals(mode) ? ".html" : ".xml";
 		if (PRODUCE_DATA) {
 			IOUtils.writeBytesToFile(new File(configurationService.getHttpSerializationDirectory() + File.separator + "search_results_for_" + testId
 					+ ext), currentResult.getBytes());
 			return currentResult;
 		}
-		String result = Files.toString(resource.getFile(), Charsets.UTF_8);
+		String result = Files.toString(new File(configurationService.getHttpSerializationDirectory() + File.separator + "search_results_for_"
+				+ testId + ext), Charsets.UTF_8);
 		return result;
 	}
 

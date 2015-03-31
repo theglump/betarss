@@ -18,9 +18,9 @@ public class CpasbienFilterComputor implements FilterComputor {
 			Filters.appendFilterAnd(filter, "VOSTFR");
 		}
 		if (quality == Quality.HD) {
-			Filters.appendFilterAnd(filter, "!720p");
-		} else if (quality == Quality.SD) {
 			Filters.appendFilterAnd(filter, "720p");
+		} else if (quality == Quality.SD) {
+			Filters.appendFilterAnd(filter, "!720p");
 		}
 		return filter.toString();
 	}
