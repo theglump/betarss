@@ -19,14 +19,14 @@ import org.springframework.stereotype.Service;
 public class RssProducer implements Producer {
 
 	@Override
-	public HttpEntity<byte[]> produceAsHttpEntity(String title, List<Torrent> torrents, boolean magnet) throws Exception {
-		String data = produce(title, torrents, magnet);
+	public HttpEntity<byte[]> produceAsHttpEntity(String title, String description, List<Torrent> torrents, boolean magnet) throws Exception {
+		String data = produce(title, description, torrents, magnet);
 		return HttpUtils.httpEntity("application", "xml", data);
 	}
 
 	@Override
-	public String produce(String title, List<Torrent> torrents, boolean magnet) throws Exception {
-		Feed feed = new Feed(title, torrents, magnet);
+	public String produce(String title, String description, List<Torrent> torrents, boolean magnet) throws Exception {
+		Feed feed = new Feed(title, description, torrents, magnet);
 		JAXBContext context = JAXBContext.newInstance(Rss2.class);
 		Marshaller m = context.createMarshaller();
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

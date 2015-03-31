@@ -11,4 +11,10 @@ public class BetarssSearch extends BaseSearch {
 	public BetarssSearch() {
 		super();
 	}
+
+	@Override
+	public String toString() {
+		return showEpisode + ", " + super.toString();
+	}
+
 }

@@ -120,7 +120,8 @@ public class BetarssResource {
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetarssSearch betarssSearch) throws Exception {
-		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betarssSearch), torrents, betarssSearch.magnet);
+		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betarssSearch), feedDescription(betarssSearch), torrents,
+				betarssSearch.magnet);
 	}
 
 	private String feedTitle(BetarssSearch betarssSearch) {
@@ -129,11 +130,16 @@ public class BetarssResource {
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetaseriesSearch betaseriesSearch) throws Exception {
-		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betaseriesSearch), torrents, betaseriesSearch.magnet);
+		return producerProvider.provide(getMode(mode)).produceAsHttpEntity(feedTitle(betaseriesSearch), feedDescription(betaseriesSearch), torrents,
+				betaseriesSearch.magnet);
 	}
 
 	private String feedTitle(BetaseriesSearch search) {
 		return search.login + "'s feed @ betaseries.com";
+	}
+
+	private String feedDescription(BaseSearch search) {
+		return search.toString();
 	}
 
 	private Mode getMode(String mode) {

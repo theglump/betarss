@@ -12,7 +12,7 @@
         http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 	<context:annotation-config />
 	<context:component-scan base-package="org.betarss" />
-	<bean name="httpClient" class="org.betarss.infrastructure.http.FileSystemHttpClient" />
+	<bean name="httpClient" class="org.betarss.infrastructure.http.NetHttpClient" />
 	<mvc:annotation-driven />
 	<bean id="documentationConfig" class="org.betarss.config.CustomDocumentationConfig" />
 	<bean id="extensibilityModule" class="org.betarss.config.ExampleExtensibilityModule" />

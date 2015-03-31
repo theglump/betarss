@@ -15,19 +15,17 @@ import org.betarss.utils.BetarssUtils.Function;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 @Service
 public class NetHttpClient implements HttpClient {
 
 	private static final String HTTP_USER_AGENT = "Mozilla/5.0";
-	private static final boolean SERIALIZATION = true;
+	private static final boolean SERIALIZATION = false;
 
 	@Autowired
 	private ConfigurationService configurationService;
@@ -46,22 +44,6 @@ public class NetHttpClient implements HttpClient {
 		} catch (IOException e) {
 			throw new BetarssException(e);
 		}
-	}
-
-	@Override
-	public List<String> getTags(String url, String tagName) {
-		List<String> results = Lists.newArrayList();
-		try {
-			for (Element element : getDocument(url).getElementsByTag(tagName)) {
-				results.add(element.text());
-			}
-			if (SERIALIZATION) {
-				serializeTag(url, tagName, results);
-			}
-		} catch (IOException e) {
-			throw new BetarssException(e);
-		}
-		return results;
 	}
 
 	@Override
@@ -161,14 +143,6 @@ public class NetHttpClient implements HttpClient {
 	private void serialize(String url, String html, Parameter... parameters) {
 		try {
 			responseSerializationHelper.serialize(url, html, parameters);
-		} catch (IOException e) {
-			throw new BetarssException("error during serialization " + url, e);
-		}
-	}
-
-	private void serializeTag(String url, String tagName, List<String> items) {
-		try {
-			responseSerializationHelper.serializeRequestForHtmlTags(url, tagName, items);
 		} catch (IOException e) {
 			throw new BetarssException("error during serialization " + url, e);
 		}

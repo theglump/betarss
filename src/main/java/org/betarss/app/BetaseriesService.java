@@ -3,7 +3,6 @@ package org.betarss.app;
 import static org.betarss.utils.Shows.createShowEpisode;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +24,8 @@ import org.betarss.utils.BetarssUtils;
 import org.betarss.utils.BetarssUtils.Procedure;
 import org.betarss.utils.Shows;
 import org.betarss.utils.Torrents;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -104,9 +105,13 @@ public class BetaseriesService {
 	}
 
 	private List<String> getBetaseriesItems(String login) throws IOException {
-		List<String> items = new ArrayList<String>();
-		List<String> titles = httpClient.getTags(BETASERIES_FEED_URL + login, "title");
-		for (String rawTitle : titles.subList(1, titles.size())) {
+		List<String> results = Lists.newArrayList();
+		String betaseriesFeed = httpClient.get(BETASERIES_FEED_URL + login);
+		for (Element element : Jsoup.parse(betaseriesFeed).getElementsByTag("title")) {
+			results.add(element.text());
+		}
+		List<String> items = Lists.newArrayList();
+		for (String rawTitle : results.subList(1, results.size())) {
 			items.add(rawTitle.substring(9, rawTitle.length() - 3));
 		}
 		return items;

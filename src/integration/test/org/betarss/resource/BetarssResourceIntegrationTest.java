@@ -21,7 +21,7 @@ import com.google.common.io.Files;
 @ContextConfiguration(locations = "classpath:application-context.xml")
 public class BetarssResourceIntegrationTest {
 
-	private static final boolean PRODUCE_DATA = false;
+	private static final boolean PRODUCE_DATA = true;
 
 	@Autowired
 	private BetarssResource resource;

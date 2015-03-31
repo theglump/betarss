@@ -5,7 +5,6 @@ import java.util.List;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.http.HttpClient;
 import org.betarss.provider.Crawler;
-import org.betarss.utils.RssParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +25,18 @@ public class ShowRssCrawler implements Crawler {
 
 	@Override
 	public List<Torrent> doCrawl(String show, Integer season) {
-		return new RssParser(getFeed(show)).parseShowRss();
+		String feed = getFeed(show);
+		return ShowRssFeedParser.parse(feed);
 	}
 
 	private String getFeed(String show) {
-		String url = getFeedUrl(show);
-		return HttpClient.dataAsString(url);
-	}
-
-	private String getFeedUrl(String show) {
 		Integer showRssId = showRssCache.get(show);
 		if (showRssId == null) {
-			LOGGER.error("Could not find show rss id for show : " + show);
+			LOGGER.error("Could not find showrss id for show : " + show);
+			return "";
 		}
-		return "http://showrss.info/feeds/" + showRssId + ".rss";
+		String url = "http://showrss.info/feeds/" + showRssId + ".rss";
+		return HttpClient.dataAsString(url);
 	}
 
 }

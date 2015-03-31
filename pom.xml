@@ -19,6 +19,16 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>pentaho-releases</id>
+			<url>http://repository.jboss.org/nexus/content/repositories/pentaho-releases/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -146,6 +156,11 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlets</artifactId>
 			<version>9.3.0.M2</version>
+		</dependency>
+		<dependency>
+			<groupId>feed4j</groupId>
+			<artifactId>feed4j</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 	<build>

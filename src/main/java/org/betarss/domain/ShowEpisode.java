@@ -1,5 +1,8 @@
 package org.betarss.domain;
 
+import static org.betarss.utils.Strings.append;
+import static org.betarss.utils.Strings.readable;
+
 public class ShowEpisode implements Content {
 	public String show;
 	public Integer season;
@@ -41,4 +44,13 @@ public class ShowEpisode implements Content {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		append(builder, readable("show", show));
+		append(builder, readable("season", season.toString()));
+		return builder.toString();
+	}
+
 }

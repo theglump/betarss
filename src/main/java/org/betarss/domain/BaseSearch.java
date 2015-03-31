@@ -1,5 +1,8 @@
 package org.betarss.domain;
 
+import static org.betarss.utils.Strings.append;
+import static org.betarss.utils.Strings.readable;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -24,4 +27,16 @@ public abstract class BaseSearch {
 		magnet = baseSearch.magnet;
 		date = baseSearch.date;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		append(builder, readable("language", languages));
+		append(builder, readable("provider", providers));
+		append(builder, readable("quality", qualities));
+		append(builder, readable("filter", filter));
+		append(builder, readable("magnet", magnet));
+		return builder.toString();
+	}
+
 }

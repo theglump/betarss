@@ -12,4 +12,9 @@ public class BetaseriesSearch extends BaseSearch {
 		super(baseSearch);
 	}
 
+	@Override
+	public String toString() {
+		return "login = " + login + ", " + super.toString();
+	}
+
 }

@@ -1,7 +1,5 @@
 package org.betarss.infrastructure.http;
 
-import java.util.List;
-
 import org.betarss.infrastructure.http.NetHttpClient.Parameter;
 
 public interface HttpClient {
@@ -13,8 +11,6 @@ public interface HttpClient {
 	String post(final String url, final Parameter... parameters);
 
 	String post(final String url, int maxTime, final Parameter... parameters);
-
-	List<String> getTags(String url, String tagName);
 
 	byte[] getData(String url);
 

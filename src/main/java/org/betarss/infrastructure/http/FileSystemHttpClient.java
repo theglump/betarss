@@ -1,7 +1,6 @@
 package org.betarss.infrastructure.http;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.betarss.exception.BetarssException;
 import org.betarss.infrastructure.ConfigurationService;
@@ -36,15 +35,6 @@ public class FileSystemHttpClient implements HttpClient {
 	@Override
 	public String post(String url, Parameter... parameters) {
 		return deserializedRequest(url, parameters);
-	}
-
-	@Override
-	public List<String> getTags(String url, String tagName) {
-		try {
-			return serializer.deserializeRequestForHtmlTags(url, tagName);
-		} catch (IOException e) {
-			throw new BetarssException(e);
-		}
 	}
 
 	@Override
