@@ -9,10 +9,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.betarss.exception.BetarssException;
-import org.betarss.infrastructure.http.HttpClient;
-import org.betarss.infrastructure.http.NetHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BetarssUtils {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BetarssUtils.class);
 
 	public interface Function<T> {
 		T doCall() throws Exception;
@@ -29,6 +31,7 @@ public class BetarssUtils {
 				return t.doCall();
 			} catch (Exception e) {
 				if (++times == max) {
+					LOGGER.error("Too many consecutive errors during function execution", e);
 					throw new BetarssException(e);
 				}
 			}
@@ -38,13 +41,14 @@ public class BetarssUtils {
 	public static void multiThreadCalls(List<Procedure> procedures, int second) {
 		ExecutorService es = Executors.newCachedThreadPool();
 		for (final Procedure procedure : procedures) {
-			es.execute(new Runnable() {
+			es.execute(new Runnable() { // Must use callable instead of Runnable in order to catch thread exceptions in main thread
 
 				@Override
 				public void run() {
 					try {
 						procedure.doCall();
 					} catch (Exception e) {
+						LOGGER.error("An error occured during procedure execution", e);
 						throw new BetarssException(e);
 					}
 
@@ -55,6 +59,7 @@ public class BetarssUtils {
 		try {
 			es.awaitTermination(second, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
+			LOGGER.error("An error occured during procedure execution", e);
 			throw new BetarssException(e);
 		}
 	}
@@ -67,7 +72,4 @@ public class BetarssUtils {
 		}
 	}
 
-	public static void main(String[] argz) throws Exception {
-		HttpClient u = new NetHttpClient();
-	}
 }

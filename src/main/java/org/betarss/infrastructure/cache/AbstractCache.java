@@ -23,8 +23,10 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
 
 	@Override
 	public V get(K key) {
-		if (needRefresh() || (cache == null && lazy())) {
-			internalInit();
+		synchronized (mutex) { // to prevent concurrent cache computing
+			if (needRefresh() || cache == null) {
+				internalInit();
+			}
 		}
 		return cache.get(key);
 	}

@@ -69,10 +69,8 @@ public class BetarssResource {
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
-		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
-		betarssSearch.showEpisode.show = show;
-		betarssSearch.showEpisode.season = season;
+		BetarssSearch betarssSearch = computeBetarssSearch(show, season, language, provider, quality, filter, magnet);
+		LOGGER.info("Betarss search for : " + betarssSearch);
 		List<Torrent> torrents = betarssService.searchTorrents(betarssSearch);
 		return produce(mode, torrents, betarssSearch);
 	}
@@ -94,9 +92,8 @@ public class BetarssResource {
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
-		BetaseriesSearch betaseriesSearch = new BetaseriesSearch(baseSearch);
-		betaseriesSearch.login = login;
+		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet);
+		LOGGER.info("Betaseries search for : " + betaseriesSearch);
 		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
 		return produce(mode, torrents, betaseriesSearch);
 	}
@@ -147,6 +144,22 @@ public class BetarssResource {
 
 	private Mode getMode(String mode) {
 		return Mode.parse(mode);
+	}
+
+	private BetarssSearch computeBetarssSearch(String show, Integer season, String language, String provider, String quality, String filter,
+			Boolean magnet) {
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
+		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
+		betarssSearch.showEpisode.show = show;
+		betarssSearch.showEpisode.season = season;
+		return betarssSearch;
+	}
+
+	private BetaseriesSearch getBetaseriesSearch(String login, String language, String provider, String quality, String filter, Boolean magnet) {
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
+		BetaseriesSearch betaseriesSearch = new BetaseriesSearch(baseSearch);
+		betaseriesSearch.login = login;
+		return betaseriesSearch;
 	}
 
 	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean magnet) {

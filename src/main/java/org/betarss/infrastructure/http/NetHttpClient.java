@@ -15,6 +15,8 @@ import org.betarss.utils.BetarssUtils.Function;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,8 @@ import com.google.common.io.ByteStreams;
 
 @Service
 public class NetHttpClient implements HttpClient {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NetHttpClient.class);
 
 	private static final String HTTP_USER_AGENT = "Mozilla/5.0";
 	private static final boolean SERIALIZATION = false;
@@ -42,7 +46,8 @@ public class NetHttpClient implements HttpClient {
 			}
 			return html;
 		} catch (IOException e) {
-			throw new BetarssException(e);
+			LOGGER.error("Error during get request for url " + url);
+			throw new BetarssException("Error during get request for url " + url, e);
 		}
 	}
 
@@ -89,8 +94,10 @@ public class NetHttpClient implements HttpClient {
 			}
 			return data;
 		} catch (MalformedURLException e) {
+			LOGGER.error("error during data fetching for " + url);
 			throw new BetarssException("error during data fetching for " + url, e);
 		} catch (IOException e) {
+			LOGGER.error("error during data fetching for " + url);
 			throw new BetarssException("error during data fetching for " + url, e);
 		}
 
@@ -132,6 +139,14 @@ public class NetHttpClient implements HttpClient {
 		try {
 			return connection.post();
 		} catch (IOException e) {
+			StringBuilder sb = new StringBuilder("Error during post request for url ").append(url);
+			if (parameters != null) {
+				sb.append(" and parameter(s) ");
+				for (Parameter parameter : parameters) {
+					sb.append(parameter + "\n");
+				}
+			}
+			LOGGER.error(sb.toString(), e);
 			throw new BetarssException(e);
 		}
 	}
@@ -167,6 +182,11 @@ public class NetHttpClient implements HttpClient {
 
 		public static Parameter create(String name, String value) {
 			return new Parameter(name, value);
+		}
+
+		@Override
+		public String toString() {
+			return "Parameter [name=" + name + ", value=" + value + "]";
 		}
 	}
 }
