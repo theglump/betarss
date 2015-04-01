@@ -417,7 +417,7 @@ body #header a#logo {
 body a#github {
     background: transparent url(../images/github.png) no-repeat center; 
     background-size: 36px 36px;
-    padding: 10px 40px 45px 500px;
+    padding: 10px 40px 45px 0px;
     color: white;
 }
 
