@@ -54,7 +54,7 @@ public class BetarssResource {
 	public HttpEntity<byte[]> specificShow( //
 			@ApiParam(name = "show", required = true)//
 			@RequestParam(required = true) String show, //
-			@ApiParam(name = "season", required = true, allowableValues = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15")//
+			@ApiParam(name = "season", required = true)//
 			@RequestParam(required = true) Integer season, //
 			@ApiParam(name = "language", required = true, allowableValues = "en,vostfr,fr")//
 			@RequestParam(required = false, defaultValue = "en") String language, //
@@ -126,7 +126,10 @@ public class BetarssResource {
 
 	private String feedTitle(BetarssSearch betarssSearch) {
 		ShowEpisode showEpisode = betarssSearch.showEpisode;
-		return showEpisode.show != null ? formatEpisodeUpperCase(showEpisode.show, showEpisode.season) : "Last entries...";
+		if (showEpisode.show != null) {
+			return "[BetaRss] " + formatEpisodeUpperCase(showEpisode.show, showEpisode.season);
+		}
+		return "[BetaRss] Last entries";
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetaseriesSearch betaseriesSearch) throws Exception {
@@ -135,7 +138,7 @@ public class BetarssResource {
 	}
 
 	private String feedTitle(BetaseriesSearch search) {
-		return search.login + "'s feed @ betaseries.com";
+		return "[BetaRss] Feed for " + search.login + "@betaseries.com";
 	}
 
 	private String feedDescription(BaseSearch search) {

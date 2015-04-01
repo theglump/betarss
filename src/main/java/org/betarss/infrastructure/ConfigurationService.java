@@ -34,8 +34,13 @@ public class ConfigurationService {
 		return false;
 	}
 
-	public String getHttpSerializationDirectory() {
+	// FIX : Ca pue!!!
+	public String getHttpSerializationDirectory1() {
 		return "C:/Work/Workspaces/main/betarss/src/integration/ressources/data";
+	}
+
+	public String getHttpSerializationDirectory2() {
+		return "C:/Work/Workspaces/main/betarss/src/connected/ressources/data";
 	}
 
 }
