@@ -54,7 +54,7 @@ public class BetaseriesService {
 		Map<String, List<String>> itemsByShow = itemByShows(betaseriesSearch);
 		List<Procedure> procedures = getProcedures(betaseriesSearch, results, itemsByShow);
 		BetarssUtils.multiThreadCalls(procedures, 120);
-		return Torrents.sort(results);
+		return Torrents.sort(Lists.newArrayList(results)); // We cannot reorder a CopyOnWriteArrayList
 	}
 
 	private List<Procedure> getProcedures(final BetaseriesSearch betaseriesSearch, final List<Torrent> results,
