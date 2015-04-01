@@ -13,13 +13,13 @@ public class HtmlProducer implements Producer {
 
 	@Override
 	public HttpEntity<byte[]> produceAsHttpEntity(String title, String description, List<Torrent> torrents, boolean magnet) throws Exception {
-		String data = produce(title, null, torrents, magnet);
+		String data = produce(title, title, torrents, magnet);
 		return HttpUtils.httpEntity("text", "html", data);
 	}
 
 	@Override
 	public String produce(String title, String description, List<Torrent> torrents, boolean magnet) throws Exception {
-		StringBuilder sb = new StringBuilder("<html><head></head><body><table>");
+		StringBuilder sb = new StringBuilder("<html><head><title>").append(description).append("</title></head><body><table>");
 		for (Torrent torrent : torrents) {
 			String link = magnet && Strings.isNotEmpty(torrent.magnet) ? torrent.magnet : torrent.url;
 			sb.append("<tr><td><a href=\"").append(link).append("\">").append(torrent.title).append("</a></td></tr>");

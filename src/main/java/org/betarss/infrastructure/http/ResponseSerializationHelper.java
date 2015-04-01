@@ -107,6 +107,6 @@ public class ResponseSerializationHelper {
 	}
 
 	private String getHttpSerializationDirectory() {
-		return configurationService.getHttpSerializationDirectory();
+		return configurationService.getHttpSerializationDirectory1();
 	}
 }

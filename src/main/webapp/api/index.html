@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Betarss / API</title>
+    <title>BetaRss / API</title>
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'/>
     <link href='css/hightlight.default.css' media='screen' rel='stylesheet' type='text/css'/>
     <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
@@ -21,7 +21,17 @@
             max-width: 960px;
             margin-left: auto;
             margin-right: auto;
+            float: center;
+            height: 60;  
         }
+        
+        .contact {
+        margin-left: auto;
+        margin-right: auto;
+		float: right;  
+        }
+
+.clear { clear: both;}
 
         .icon-btn {
             cursor: pointer;
@@ -68,20 +78,19 @@
             });
 
             window.swaggerUi.load();
-            
-            $( document ).ready(function() {
-            	window.swaggerUi.expandFeed();
-            });
         });
 
     </script>
 </head>
 
 <body>
+ <div class="contact">
+        <a id="github" href="https://github.com/theglump/betarss"></a>
+    </div>
 <div id='header'>
-
+    
     <div class="swagger-ui-wrap">
-        <a id="title" href="../">Betarss</a>
+        <a id="title" href="../">BetaRss</a>
         
         <!--form id='api_selector'>
             <div class='input icon-btn'>
@@ -96,6 +105,7 @@
             <div class='input'><a id="explore" href="#">Explore</a></div>
         </form !-->
     </div>
+   
 </div>
 
 <div id="message-bar" class="swagger-ui-wrap">

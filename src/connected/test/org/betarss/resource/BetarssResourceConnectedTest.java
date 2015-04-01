@@ -2,55 +2,57 @@ package org.betarss.resource;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 
+import org.betarss.infrastructure.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.gentlyweb.utils.IOUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:application-context.xml")
+@ContextConfiguration(locations = "classpath:application-context-connected.xml")
 public class BetarssResourceConnectedTest {
+
+	private static final boolean PRODUCE_DATA = false;
 
 	@Autowired
 	private BetarssResource resource;
 
+	@Autowired
+	private ConfigurationService configurationService;
+
+	private String currentResult;
+
 	@Test
-	public void search_matches_with_FR_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, "fr", null, null, null, true, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("FR_language"));
+	public void search_matches_with_CPASBIEN_provider() throws Exception {
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "cpasbien", null, null, true, "rss");
+		assertThat(asString(feed)).isEqualTo(expectedResult("CPASBIEN_provider"));
 	}
 
 	@Test
-	public void search_matches_with_VOSTFR_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, "vostfr", null, null, null, true, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("VOSTFR_language"));
+	public void search_matches_with_EZTV_provider() throws Exception {
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", null, null, true, "rss");
+		assertThat(asString(feed)).isEqualTo(expectedResult("EZTV_provider"));
 	}
 
 	@Test
-	public void search_matches_with_EN_language() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", "hd", null, false, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language"));
+	public void search_matches_with_SHOWRSS_provider() throws Exception {
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "showrss", null, null, true, "rss");
+		assertThat(asString(feed)).isEqualTo(expectedResult("SHOWRSS_provider"));
 	}
 
 	@Test
-	public void search_matches_with_EN_language_and_alternative_season_format() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("sherlock", 1, null, "eztv", null, null, false, "rss");
-		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language_and_alternative_season_format"));
-	}
-
-	@Test
-	public void search_matches_with_EN_language_and_MAGNET_and_URL_mode() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", null, null, true, "url");
-		assertThat(asString(feed)).isEqualTo(expectedResult("EN_language_and_MAGNET_and_URL_mode", "url"));
+	public void search_matches_with_KICKASS_provider() throws Exception {
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "kickass", null, null, true, "rss");
+		assertThat(asString(feed)).isEqualTo(expectedResult("KICKASS_provider"));
 	}
 
 	private String expectedResult(String testId) throws IOException {
@@ -58,12 +60,22 @@ public class BetarssResourceConnectedTest {
 	}
 
 	private String expectedResult(String testId, String mode) throws IOException {
-		String ext = "url".equals(mode) ? ".txt" : ".xml";
-		Resource resource = new ClassPathResource("search_results_for_" + testId + ext);
-		return Files.toString(resource.getFile(), Charsets.UTF_8);
+		String ext = "url".equals(mode) ? ".txt" : "html".equals(mode) ? ".html" : ".xml";
+		if (PRODUCE_DATA) {
+			IOUtils.writeBytesToFile(
+					new File(configurationService.getHttpSerializationDirectory2() + File.separator + "results_for_" + testId + ext),
+					currentResult.getBytes());
+			return currentResult;
+		}
+		String result = Files.toString(new File(configurationService.getHttpSerializationDirectory2() + File.separator + "results_for_" + testId
+				+ ext), Charsets.UTF_8);
+		return result;
 	}
 
 	private String asString(HttpEntity<byte[]> feed) throws IOException {
+		if (PRODUCE_DATA) {
+			currentResult = new String(feed.getBody(), Charsets.UTF_8);
+		}
 		return new String(feed.getBody(), Charsets.UTF_8);
 	}
 }
