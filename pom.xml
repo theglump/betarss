@@ -175,6 +175,12 @@
 	</dependencies>
 	<build>
 		<finalName>betarss</finalName>
+		<resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -204,4 +210,26 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<swagger.basePath>http://localhost:8080/betarss</swagger.basePath>
+			</properties>
+			<dependencies />
+		</profile>
+		<profile>
+			<id>pi</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<swagger.basePath>http://192.168.1.39:8080/betarss</swagger.basePath>
+			</properties>
+			<dependencies />
+		</profile>
+	</profiles>
 </project>
