@@ -146,6 +146,20 @@
 			<groupId>com.mangofactory</groupId>
 			<artifactId>swagger-springmvc</artifactId>
 			<version>0.6.6</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-module-scala_2.10</artifactId>
+					<groupId>com.fasterxml.jackson.module</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>scalap</artifactId>
+					<groupId>org.scala-lang</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>scala-compiler</artifactId>
+					<groupId>org.scala-lang</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -176,11 +190,11 @@
 	<build>
 		<finalName>betarss</finalName>
 		<resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -220,6 +234,10 @@
 				<swagger.basePath>http://localhost:8080/betarss</swagger.basePath>
 			</properties>
 			<dependencies />
+			<build>
+				<!-- resources> <resource> <directory>src/install/prod</directory> <includes> 
+					<include>**/*</include> </includes> </resource> </resources -->
+			</build>
 		</profile>
 		<profile>
 			<id>pi</id>
