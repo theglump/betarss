@@ -2,10 +2,7 @@ package org.betarss.config;
 
 import static com.mangofactory.swagger.models.IgnorableTypeRule.ignorable;
 
-import java.math.BigDecimal;
 import java.net.URI;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mangofactory.swagger.configuration.ExtensibilityModule;
-import com.mangofactory.swagger.models.AlternateTypeProcessingRule;
 import com.mangofactory.swagger.models.TypeProcessingRule;
 
 public class ExampleExtensibilityModule extends ExtensibilityModule {
@@ -31,8 +27,8 @@ public class ExampleExtensibilityModule extends ExtensibilityModule {
 	@Override
 	protected void customizeTypeProcessingRules(List<TypeProcessingRule> rules) {
 		rules.add(ignorable(UriComponentsBuilder.class));
-		rules.add(new AlternateTypeProcessingRule(BigDecimal.class, Double.class));
-		rules.add(new AlternateTypeProcessingRule(LocalDate.class, Date.class));
+		// rules.add(new AlternateTypeProcessingRule(BigDecimal.class, Double.class));
+		// rules.add(new AlternateTypeProcessingRule(LocalDate.class, Date.class));
 		//rules.add(hashmapAlternate(String.class, Pet.class));
 	}
 
