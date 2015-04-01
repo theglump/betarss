@@ -19,4 +19,5 @@
 	<bean id="extensibilityModule"
 		class="org.betarss.config.ExampleExtensibilityModule" />
 	<context:property-placeholder location="classpath:swagger.properties" />
+	<mvc:default-servlet-handler />
 </beans>
