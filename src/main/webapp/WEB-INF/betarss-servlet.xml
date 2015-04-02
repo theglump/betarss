@@ -11,13 +11,14 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 	<context:annotation-config />
-	<mvc:annotation-driven />
 	<context:component-scan base-package="org.betarss" />
 	<bean name="httpClient" class="org.betarss.infrastructure.http.NetHttpClient" />
-	<bean id="documentationConfig"
-		class="org.betarss.config.CustomDocumentationConfig" />
-	<bean id="extensibilityModule"
-		class="org.betarss.config.ExampleExtensibilityModule" />
-	<context:property-placeholder location="classpath:swagger.properties" />
+	<bean id="documentationConfig" class="org.betarss.config.CustomDocumentationConfig" />
+	<bean id="extensibilityModule" class="org.betarss.config.ExampleExtensibilityModule" />
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="order" value="1" />
+	</bean>
+	<mvc:annotation-driven />
 	<mvc:default-servlet-handler />
+	<context:property-placeholder location="classpath:swagger.properties" />
 </beans>
