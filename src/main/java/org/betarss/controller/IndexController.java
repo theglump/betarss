@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/*")
 public class IndexController {
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -13,8 +13,4 @@ public class IndexController {
 		return "index.html";
 	}
 
-	@RequestMapping(value = "api", method = RequestMethod.GET)
-	public String ind() {
-		return "index.html";
-	}
 }
