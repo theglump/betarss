@@ -1,10 +1,11 @@
-package org.betarss.resource;
+package org.betarss.controller;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.betarss.controller.FeedResource;
 import org.betarss.infrastructure.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,12 +20,12 @@ import com.google.common.io.Files;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:application-context-connected.xml")
-public class BetarssResourceConnectedTest {
+public class FeedResourceConnectedTest {
 
 	private static final boolean PRODUCE_DATA = false;
 
 	@Autowired
-	private BetarssResource resource;
+	private FeedResource resource;
 
 	@Autowired
 	private ConfigurationService configurationService;

@@ -1,4 +1,4 @@
-package org.betarss.resource;
+package org.betarss.controller;
 
 import static org.betarss.utils.Shows.formatEpisodeUpperCase;
 
@@ -33,9 +33,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Controller
 @RequestMapping({ "/feed" })
 @Api(value = "feed", description = "Torrents feeds for tv shows")
-public class BetarssResource {
+public class FeedResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BetarssResource.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FeedResource.class);
 
 	@Autowired
 	private BetaseriesService betaseriesService;

@@ -1,0 +1,15 @@
+{
+   "build": {
+      "type": "maven",
+      "target": "package"
+   },
+   "deploy": {
+      "container": "TOMCAT7",
+      "war": [
+         {
+            "file": "target/betarss.war",
+            "context": "/"
+         }
+       ]
+   }
+}
