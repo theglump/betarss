@@ -1,7 +1,7 @@
 {
    "build": {
       "type": "maven",
-      "goal": "package"
+      "goal": "package -D clevercloud"
    },
    "deploy": {
       "container": "TOMCAT7",
