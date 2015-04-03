@@ -8,7 +8,7 @@
       "war": [
          {
             "file": "target/betarss.war",
-            "context": "/"
+            "context": "/betarss"
          }
        ]
    }
