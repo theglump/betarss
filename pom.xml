@@ -255,7 +255,7 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
-				<swagger.basePath>http://betarss.cleverapps.io/betarss</swagger.basePath>
+				<swagger.basePath>http://betarss.cleverapps.io</swagger.basePath>
 			</properties>
 			<dependencies />
 		</profile>

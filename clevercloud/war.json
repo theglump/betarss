@@ -1,14 +1,14 @@
 {
    "build": {
       "type": "maven",
-      "target": "package -P clevercloud"
+      "goal": "package -P clevercloud"
    },
    "deploy": {
       "container": "TOMCAT7",
       "war": [
          {
             "file": "target/betarss.war",
-            "context": "/betarss"
+            "context": "/"
          }
        ]
    }
