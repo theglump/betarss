@@ -1,7 +1,7 @@
 {
    "build": {
       "type": "maven",
-      "target": "package"
+      "goal": "package"
    },
    "deploy": {
       "container": "TOMCAT7",

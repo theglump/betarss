@@ -249,5 +249,15 @@
 			</properties>
 			<dependencies />
 		</profile>
+		<profile>
+			<id>clevercloud</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<swagger.basePath>http://betarss.cleverapps.io/betarss</swagger.basePath>
+			</properties>
+			<dependencies />
+		</profile>
 	</profiles>
 </project>
