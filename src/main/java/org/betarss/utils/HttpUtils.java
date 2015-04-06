@@ -22,6 +22,14 @@ public class HttpUtils {
 		return new HttpEntity<byte[]>(data.getBytes(), header);
 	}
 
+	public static HttpEntity<byte[]> httpEntity(String type, String subType, String filename, byte[] bytes) {
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(new MediaType(type, subType));
+		header.setContentLength(bytes.length);
+		header.setContentDispositionFormData("attachment", filename);
+		return new HttpEntity<byte[]>(bytes, header);
+	}
+	
 	public static void avoidHttpsErrors() {
 		try {
 			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
