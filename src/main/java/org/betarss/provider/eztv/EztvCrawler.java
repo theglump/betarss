@@ -48,7 +48,7 @@ public class EztvCrawler implements Crawler {
 	private EztvCache eztvCache;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) {
+	public List<Torrent> doCrawl(String show, Integer season, boolean backlink) {
 		return getTorrents(html(show), getEntryPattern(show, season));
 	}
 

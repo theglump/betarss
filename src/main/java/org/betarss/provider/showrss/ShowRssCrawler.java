@@ -24,7 +24,7 @@ public class ShowRssCrawler implements Crawler {
 	private HttpClient HttpClient;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) {
+	public List<Torrent> doCrawl(String show, Integer season, boolean backlink) {
 		String feed = getFeed(show);
 		return ShowRssFeedParser.parse(feed);
 	}

@@ -28,7 +28,7 @@ public class SearchEngine {
 	}
 
 	public List<Torrent> doSearch(BetarssSearch search) throws IOException, FeedFilterException {
-		List<Torrent> torrents = crawler.doCrawl(search.showEpisode.show, search.showEpisode.season);
+		List<Torrent> torrents = crawler.doCrawl(search.showEpisode.show, search.showEpisode.season, search.backlink);
 		String filter = computeFilter(search);
 		return torrentFilterer.filter(torrents, filter);
 	}

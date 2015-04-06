@@ -34,7 +34,7 @@ public class CpasbienCrawler implements Crawler {
 	private HttpClient httpClient;
 
 	@Override
-	public List<Torrent> doCrawl(String show, Integer season) {
+	public List<Torrent> doCrawl(String show, Integer season, boolean backlink) {
 		if (show == null) {
 			return getFeed();
 		}

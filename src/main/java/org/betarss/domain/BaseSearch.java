@@ -14,6 +14,7 @@ public abstract class BaseSearch {
 	public String filter;
 	public Boolean magnet;
 	public Boolean date;
+	public Boolean backlink;
 
 	public BaseSearch() {
 
@@ -36,6 +37,7 @@ public abstract class BaseSearch {
 		append(builder, readable("quality", qualities));
 		append(builder, readable("filter", filter));
 		append(builder, readable("magnet", magnet));
+		append(builder, readable("backlink", backlink));
 		return builder.toString();
 	}
 
