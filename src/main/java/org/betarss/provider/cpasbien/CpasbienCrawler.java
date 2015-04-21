@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.betarss.domain.Torrent;
 import org.betarss.infrastructure.http.HttpClient;
 import org.betarss.infrastructure.http.NetHttpClient.Parameter;
+import org.betarss.producer.BacklinkHelper;
 import org.betarss.provider.Crawler;
 import org.betarss.utils.Shows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,37 +31,40 @@ public class CpasbienCrawler implements Crawler {
 	private static final int TITLE = 4;
 
 	@Autowired
+	private BacklinkHelper backlinkHelper;
+	
+	@Autowired
 	@Qualifier("httpClient")
 	private HttpClient httpClient;
 
 	@Override
 	public List<Torrent> doCrawl(String show, Integer season, boolean backlink) {
 		if (show == null) {
-			return getFeed();
+			return getFeed(backlink);
 		}
 		String html = fetchHtml(show, season);
-		List<Torrent> torrents = getFeedItems(html);
+		List<Torrent> torrents = getFeedItems(html, backlink);
 		return torrents;
 	}
 
-	public List<Torrent> getFeed() {
-		return getFeedItems(fetchHtml());
+	public List<Torrent> getFeed(boolean backlink) {
+		return getFeedItems(fetchHtml(), backlink);
 	}
 
-	private List<Torrent> getFeedItems(String html) {
+	private List<Torrent> getFeedItems(String html, boolean backlink) {
 		List<Torrent> torrents = Lists.newArrayList();
 		Matcher m = EPISODE_ITEM_PATTERN.matcher(html);
 		while (m.find()) {
-			torrents.add(createFeed(m));
+			torrents.add(createFeed(m, backlink));
 		}
 		return torrents;
 	}
 
-	private Torrent createFeed(Matcher m) {
+	private Torrent createFeed(Matcher m, boolean backlink) {
 		Torrent torrent = new Torrent();
 		torrent.title = m.group(TITLE);
 		torrent.description = m.group(TITLE);
-		torrent.url = getLocation(m.group(TORRENT_NAME));
+		torrent.url = getLocation(m.group(TORRENT_NAME), backlink);
 		torrent.date = parseDate(m.group(DATE));
 		return torrent;
 	}
@@ -82,8 +86,9 @@ public class CpasbienCrawler implements Crawler {
 		}
 	}
 
-	private String getLocation(String torrentName) {
-		return "http://www.cpasbien.pw/telechargement/" + torrentName + ".torrent";
+	private String getLocation(String torrentName, boolean backlink) {
+		String location = "http://www.cpasbien.pw/telechargement/" + torrentName + ".torrent";
+		return backlink ? backlinkHelper.create(location) : location;
 	}
 
 	private String getSearchString(String showName, Integer season) {

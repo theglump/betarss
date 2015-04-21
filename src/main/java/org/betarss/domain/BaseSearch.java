@@ -27,6 +27,7 @@ public abstract class BaseSearch {
 		filter = baseSearch.filter;
 		magnet = baseSearch.magnet;
 		date = baseSearch.date;
+		backlink = baseSearch.backlink;
 	}
 
 	@Override

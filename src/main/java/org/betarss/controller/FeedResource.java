@@ -152,6 +152,7 @@ public class FeedResource {
 		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
 		betarssSearch.showEpisode.show = show;
 		betarssSearch.showEpisode.season = season;
+		betarssSearch.backlink = true;
 		return betarssSearch;
 	}
 
