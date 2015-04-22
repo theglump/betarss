@@ -66,10 +66,11 @@ public class FeedResource {
 			@RequestParam(required = false) String filter, //
 			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "false") Boolean backlink, //
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetarssSearch betarssSearch = computeBetarssSearch(show, season, language, provider, quality, filter, magnet, true);
+		BetarssSearch betarssSearch = computeBetarssSearch(show, season, language, provider, quality, filter, magnet, backlink);
 		LOGGER.info("Betarss search for : " + betarssSearch);
 		List<Torrent> torrents = betarssService.searchTorrents(betarssSearch);
 		return produce(mode, torrents, betarssSearch);
@@ -89,10 +90,11 @@ public class FeedResource {
 			@RequestParam(required = false) String filter, //
 			@ApiParam(name = "magnet", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "false") Boolean backlink, //
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet, true);
+		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet, backlink);
 		LOGGER.info("Betaseries search for : " + betaseriesSearch);
 		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
 		return produce(mode, torrents, betaseriesSearch);
@@ -111,9 +113,10 @@ public class FeedResource {
 			@RequestParam(required = false) String filter, //
 			@ApiParam(name = "date", defaultValue = "true")//
 			@RequestParam(required = false, defaultValue = "true") Boolean magnet, //
+			@RequestParam(required = false, defaultValue = "false") Boolean backlink, //
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
-		return specificShow(null, -1, language, provider, quality, filter, magnet, mode);
+		return specificShow(null, -1, language, provider, quality, filter, magnet, backlink, mode);
 	}
 
 	private HttpEntity<byte[]> produce(String mode, List<Torrent> torrents, BetarssSearch betarssSearch) throws Exception {

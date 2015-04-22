@@ -34,25 +34,25 @@ public class FeedResourceConnectedTest {
 
 	@Test
 	public void search_matches_with_CPASBIEN_provider() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "cpasbien", null, null, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "cpasbien", null, null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("CPASBIEN_provider"));
 	}
 
 	@Test
 	public void search_matches_with_EZTV_provider() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", null, null, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "eztv", null, null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("EZTV_provider"));
 	}
 
 	@Test
 	public void search_matches_with_SHOWRSS_provider() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "showrss", null, null, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "showrss", null, null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("SHOWRSS_provider"));
 	}
 
 	@Test
 	public void search_matches_with_KICKASS_provider() throws Exception {
-		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "kickass", null, null, true, "rss");
+		HttpEntity<byte[]> feed = resource.specificShow("game of thrones", 4, null, "kickass", null, null, true, false, "rss");
 		assertThat(asString(feed)).isEqualTo(expectedResult("KICKASS_provider"));
 	}
 
