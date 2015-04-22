@@ -24,16 +24,16 @@ public class TorrentResource {
 	private ConfigurationService configurationService;
 
 	@RequestMapping(value = "torrent", method = RequestMethod.GET)
-	public HttpEntity<byte[]> torrent( //
+	public HttpEntity<byte[]> torrent(//
 			@RequestParam(required = true) String location) throws Exception {
-		return httpEntity("application", "x-bittorrent", extracted(location), dataAt(location));
+		return httpEntity("application", "x-bittorrent", filename(location), data(location));
 	}
 
-	private String extracted(String location) {
+	private String filename(String location) {
 		return location.hashCode() + ".torrent";
 	}
 
-	public byte[] dataAt(String location) throws Exception {
+	public byte[] data(String location) throws Exception {
 		URL url = new URL(location);
 		HttpURLConnection http = (HttpURLConnection) url.openConnection();
 		Map<String, List<String>> header = http.getHeaderFields();

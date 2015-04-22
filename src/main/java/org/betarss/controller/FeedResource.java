@@ -92,7 +92,7 @@ public class FeedResource {
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet);
+		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet, false);
 		LOGGER.info("Betaseries search for : " + betaseriesSearch);
 		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
 		return produce(mode, torrents, betaseriesSearch);
@@ -147,23 +147,23 @@ public class FeedResource {
 	}
 
 	private BetarssSearch computeBetarssSearch(String show, Integer season, String language, String provider, String quality, String filter,
-			Boolean magnet) {
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
+			Boolean magnet, Boolean backlink) {
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet, backlink);
 		BetarssSearch betarssSearch = new BetarssSearch(baseSearch);
 		betarssSearch.showEpisode.show = show;
 		betarssSearch.showEpisode.season = season;
-		betarssSearch.backlink = true;
 		return betarssSearch;
 	}
 
-	private BetaseriesSearch getBetaseriesSearch(String login, String language, String provider, String quality, String filter, Boolean magnet) {
-		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet);
+	private BetaseriesSearch getBetaseriesSearch(String login, String language, String provider, String quality, String filter, Boolean magnet,
+			Boolean backlink) {
+		BaseSearch baseSearch = computeBaseSearch(language, provider, quality, filter, magnet, backlink);
 		BetaseriesSearch betaseriesSearch = new BetaseriesSearch(baseSearch);
 		betaseriesSearch.login = login;
 		return betaseriesSearch;
 	}
 
-	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean magnet) {
+	private BetarssSearch computeBaseSearch(String language, String provider, String quality, String filter, Boolean magnet, Boolean backlink) {
 		BetarssSearch search = new BetarssSearch();
 		if (provider != null) {
 			search.providers.add(Provider.parse(provider));
@@ -176,6 +176,7 @@ public class FeedResource {
 		search.filter = filter;
 		search.magnet = magnet;
 		search.date = true;
+		search.backlink = backlink;
 		return search;
 	}
 
