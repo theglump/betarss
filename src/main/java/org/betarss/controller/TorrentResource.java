@@ -1,5 +1,7 @@
 package org.betarss.controller;
 
+import static org.betarss.utils.HttpUtils.httpEntity;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -8,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.betarss.infrastructure.ConfigurationService;
-import org.betarss.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
@@ -21,12 +22,15 @@ public class TorrentResource {
 
 	@Autowired
 	private ConfigurationService configurationService;
-	
+
 	@RequestMapping(value = "torrent", method = RequestMethod.GET)
 	public HttpEntity<byte[]> torrent( //
 			@RequestParam(required = true) String location) throws Exception {
-		System.out.println(configurationService.getBaseUrl());
-		return HttpUtils.httpEntity("application", "x-bittorrent", location.hashCode() + ".torrent", dataAt(location));
+		return httpEntity("application", "x-bittorrent", extracted(location), dataAt(location));
+	}
+
+	private String extracted(String location) {
+		return location.hashCode() + ".torrent";
 	}
 
 	public byte[] dataAt(String location) throws Exception {
