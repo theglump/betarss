@@ -69,7 +69,7 @@ public class FeedResource {
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetarssSearch betarssSearch = computeBetarssSearch(show, season, language, provider, quality, filter, magnet);
+		BetarssSearch betarssSearch = computeBetarssSearch(show, season, language, provider, quality, filter, magnet, true);
 		LOGGER.info("Betarss search for : " + betarssSearch);
 		List<Torrent> torrents = betarssService.searchTorrents(betarssSearch);
 		return produce(mode, torrents, betarssSearch);
@@ -92,7 +92,7 @@ public class FeedResource {
 			@ApiParam(name = "mode", required = true, allowableValues = "html,rss,url")//
 			@RequestParam(required = false, defaultValue = "rss") String mode) throws Exception {
 
-		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet, false);
+		BetaseriesSearch betaseriesSearch = getBetaseriesSearch(login, language, provider, quality, filter, magnet, true);
 		LOGGER.info("Betaseries search for : " + betaseriesSearch);
 		List<Torrent> torrents = betaseriesService.getTorrents(betaseriesSearch);
 		return produce(mode, torrents, betaseriesSearch);
