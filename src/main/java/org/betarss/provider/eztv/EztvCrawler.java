@@ -2,6 +2,7 @@ package org.betarss.provider.eztv;
 
 import static org.betarss.utils.Shows.formatSeason;
 import static org.betarss.utils.Shows.formatSeasonOldSchool;
+import static org.betarss.utils.Strings.isNotEmpty;
 
 import java.util.Date;
 import java.util.List;
@@ -77,9 +78,10 @@ public class EztvCrawler implements Crawler {
 
 	private Torrent getTorrent(Matcher matcher, Date date) {
 		Torrent torrent = new Torrent();
-		torrent.title = matcher.group(TITLE);
-		torrent.description = torrent.title;
-		torrent.filename = filename(torrent);
+		String title = matcher.group(TITLE);
+		torrent.title = title;
+		torrent.description = title;
+		torrent.filename = filename(title);
 		torrent.date = date;
 		torrent.magnet = matcher.group(MAGNET);
 		torrent.url = url(matcher.group(URLS_HTML));
@@ -107,8 +109,8 @@ public class EztvCrawler implements Crawler {
 		return BetarssUtils.parseDate(matcher.group(DATE), "dd, MMMMM, yyyy", Locale.US);
 	}
 
-	private String filename(Torrent torrent) {
-		return torrent.title.replace(" ", ".").replaceAll("\\.\\(.*\\)", "") + ".mp4";
+	private String filename(String title) {
+		return title.replace(" ", ".").replaceAll("\\.\\(.*\\)", "") + ".mp4";
 	}
 
 	private Integer getTvShowId(String showName) {
@@ -116,12 +118,12 @@ public class EztvCrawler implements Crawler {
 	}
 
 	private Pattern getEntryPattern(String show, Integer season) {
-		return Pattern.compile(PATTERN_1 + getSearchPattern(show, season) + PATTERN_2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+		return Pattern.compile(PATTERN_1 + searchPattern(show, season) + PATTERN_2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 	}
 
-	private String getSearchPattern(String show, Integer season) {
+	private String searchPattern(String show, Integer season) {
 		StringBuilder sb = new StringBuilder();
-		if (Strings.isNotEmpty(show)) {
+		if (isNotEmpty(show)) {
 			sb.append(show);
 			if (season != null && season > 0) {
 				sb.append(" (").append(formatSeason(season)).append("|").append(formatSeasonOldSchool(season)).append(")");
